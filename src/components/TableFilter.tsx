@@ -299,7 +299,6 @@ export default function TableFilter({
                 background: "transparent",
                 color: "inherit",
                 font: "inherit",
-                outline: "none",
                 padding: "8px 2px",
                 maxWidth: 190,
               }}

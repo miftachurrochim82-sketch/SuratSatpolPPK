@@ -48,7 +48,7 @@ export default async function PenggunaPage() {
     <>
       <section className="table-toolbar" style={{ padding: 0, marginBottom: 18 }}>
         <div>
-          <h3>Akun Petugas</h3>
+          <h2>Akun Petugas</h2>
           <p>
             {daftar.length} akun terdaftar · {jumlahAdmin} administrator · peran menentukan hak
             akses
@@ -200,7 +200,7 @@ export default async function PenggunaPage() {
                 </div>
 
                 <div className="staff-info">
-                  <h4>
+                  <h3>
                     {item.name}
                     {diriSendiri ? (
                       <span
@@ -214,7 +214,7 @@ export default async function PenggunaPage() {
                         (Anda)
                       </span>
                     ) : null}
-                  </h4>
+                  </h3>
                   <p>@{item.username}</p>
                   <span>
                     {orang ? orang.position : definisiPeran(item.role).keterangan.slice(0, 46) + "…"}

@@ -84,7 +84,7 @@ export default async function DisposisiPage() {
       <section className="panel table-panel">
         <div className="table-toolbar">
           <div>
-            <h3>Lembar Disposisi</h3>
+            <h2>Lembar Disposisi</h2>
             <p>
               {disposisi.length} disposisi · {pending} pending · {selesai} selesai
             </p>
@@ -265,7 +265,7 @@ export default async function DisposisiPage() {
                     </div>
                     <div>
                       <p>{item.letterNumber}</p>
-                      <h4>{item.subject}</h4>
+                      <h3>{item.subject}</h3>
                     </div>
                     <span
                       className={`status-pill ${

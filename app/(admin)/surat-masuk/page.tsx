@@ -44,7 +44,7 @@ export default async function SuratMasukPage() {
       <section className="panel table-panel">
         <div className="table-toolbar">
           <div>
-            <h3>Daftar Surat Masuk</h3>
+            <h2>Daftar Surat Masuk</h2>
             <p>
               {surat.length} berkas tercatat
               {surat.length > 0 ? ` · agenda terakhir No. ${surat[0].agendaNo}` : ""}
@@ -193,14 +193,14 @@ export default async function SuratMasukPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th data-urut="agenda" aria-sort="none">Agenda</th>
-                <th>Nomor Surat</th>
-                <th>Pengirim</th>
-                <th>Perihal</th>
-                <th>Klasifikasi</th>
-                <th data-urut="tanggal" aria-sort="none">Diterima</th>
-                <th>Disposisi</th>
-                <th style={{ textAlign: "right" }}>Aksi</th>
+                <th scope="col" data-urut="agenda" aria-sort="none">Agenda</th>
+                <th scope="col">Nomor Surat</th>
+                <th scope="col">Pengirim</th>
+                <th scope="col">Perihal</th>
+                <th scope="col">Klasifikasi</th>
+                <th scope="col" data-urut="tanggal" aria-sort="none">Diterima</th>
+                <th scope="col">Disposisi</th>
+                <th scope="col" style={{ textAlign: "right" }}>Aksi</th>
               </tr>
             </thead>
             <tbody id="tabel-surat-masuk">

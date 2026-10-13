@@ -142,7 +142,7 @@ export default async function DashboardPage({
         <article className="panel activity-panel">
           <div className="panel-head">
             <div>
-              <h3>Aktivitas Surat</h3>
+              <h2>Aktivitas Surat</h2>
               <p>Perbandingan surat masuk dan keluar enam bulan terakhir</p>
             </div>
             <span className="month-chip">6 bulan</span>
@@ -196,7 +196,7 @@ export default async function DashboardPage({
             </div>
             <div>
               <p className="eyebrow">PROFIL INSTANSI</p>
-              <h3>{settings.institution_name}</h3>
+              <h2>{settings.institution_name}</h2>
               <p>{settings.institution_area}</p>
             </div>
           </div>
@@ -248,7 +248,7 @@ export default async function DashboardPage({
       <section className="panel recent-panel">
         <div className="panel-head">
           <div>
-            <h3>Surat Terbaru</h3>
+            <h2>Surat Terbaru</h2>
             <p>Lima berkas terakhir yang tercatat</p>
           </div>
           <Link href="/surat-masuk" className="text-button">

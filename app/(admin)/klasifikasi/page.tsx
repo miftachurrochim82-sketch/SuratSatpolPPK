@@ -35,7 +35,7 @@ export default async function KlasifikasiPage() {
       <section className="panel table-panel">
         <div className="table-toolbar">
           <div>
-            <h3>Kode Klasifikasi Surat</h3>
+            <h2>Kode Klasifikasi Surat</h2>
             <p>
               {daftar.length} klasifikasi terdaftar · dipakai untuk mengelompokkan surat masuk
               dan keluar
@@ -108,7 +108,7 @@ export default async function KlasifikasiPage() {
               <div className="classification-row" key={item.code}>
                 <span className="class-code">{item.code}</span>
                 <div>
-                  <h4>{item.name}</h4>
+                  <h3>{item.name}</h3>
                   <p>{item.description || "Tanpa keterangan"}</p>
                 </div>
                 {bolehTulis ? (
@@ -137,7 +137,7 @@ export default async function KlasifikasiPage() {
         <section className="panel table-panel" style={{ marginTop: 18 }}>
           <div className="table-toolbar">
             <div>
-              <h3>Klasifikasi yang Sering Dipakai</h3>
+              <h2>Klasifikasi yang Sering Dipakai</h2>
               <p>Tambahkan dengan satu klik — kode dan keterangannya sudah terisi</p>
             </div>
           </div>
@@ -146,7 +146,7 @@ export default async function KlasifikasiPage() {
               <div className="classification-row" key={item.code}>
                 <span className="class-code">{item.code}</span>
                 <div>
-                  <h4>{item.name}</h4>
+                  <h3>{item.name}</h3>
                   <p>{item.description}</p>
                 </div>
                 {bolehTulis ? (

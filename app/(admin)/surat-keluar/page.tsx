@@ -60,7 +60,7 @@ export default async function SuratKeluarPage() {
       <section className="panel table-panel">
         <div className="table-toolbar">
           <div>
-            <h3>Daftar Surat Keluar</h3>
+            <h2>Daftar Surat Keluar</h2>
             <p>
               {surat.length} berkas tercatat
               {surat.length > 0 ? " · setiap surat punya kode verifikasi QR" : ""}
@@ -196,14 +196,14 @@ export default async function SuratKeluarPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th data-urut="agenda" aria-sort="none">Agenda</th>
-                <th>Nomor Surat</th>
-                <th>Tujuan</th>
-                <th>Perihal</th>
-                <th>Penandatangan</th>
-                <th data-urut="tanggal" aria-sort="none">Tanggal</th>
-                <th>Arsip</th>
-                <th style={{ textAlign: "right" }}>Aksi</th>
+                <th scope="col" data-urut="agenda" aria-sort="none">Agenda</th>
+                <th scope="col">Nomor Surat</th>
+                <th scope="col">Tujuan</th>
+                <th scope="col">Perihal</th>
+                <th scope="col">Penandatangan</th>
+                <th scope="col" data-urut="tanggal" aria-sort="none">Tanggal</th>
+                <th scope="col">Arsip</th>
+                <th scope="col" style={{ textAlign: "right" }}>Aksi</th>
               </tr>
             </thead>
             <tbody id="tabel-surat-keluar">

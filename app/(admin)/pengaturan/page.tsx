@@ -44,7 +44,7 @@ export default async function PengaturanPage() {
         <article className="panel settings-panel">
           <div className="panel-head">
             <div>
-              <h3>Identitas Instansi</h3>
+              <h2>Identitas Instansi</h2>
               <p>Dipakai pada kop lembar disposisi, portal verifikasi, dan nomor surat</p>
             </div>
             {masihBawaan ? <span className="month-chip">Masih bawaan</span> : null}
@@ -196,7 +196,7 @@ export default async function PengaturanPage() {
             <IconWhatsapp size={22} />
           </div>
           <p className="eyebrow">NOTIFIKASI</p>
-          <h3>Pengiriman WhatsApp</h3>
+          <h2>Pengiriman WhatsApp</h2>
           <p>
             Disposisi dapat diteruskan ke pegawai lewat tautan <code>wa.me</code> yang dibuka
             dari kartu disposisi. Pengiriman otomatis lewat gateway belum aktif.
@@ -260,7 +260,7 @@ export default async function PengaturanPage() {
       <section className="panel settings-panel" style={{ marginTop: 18 }}>
         <div className="panel-head">
           <div>
-            <h3>Keamanan & Akses</h3>
+            <h2>Keamanan & Akses</h2>
             <p>Hal yang perlu diperhatikan sebelum aplikasi dipakai sehari-hari</p>
           </div>
         </div>
@@ -271,7 +271,7 @@ export default async function PengaturanPage() {
               <IconShield size={14} />
             </span>
             <div>
-              <h4>Portal verifikasi bersifat publik</h4>
+              <h3>Portal verifikasi bersifat publik</h3>
               <p>
                 Siapa pun yang memegang kode dapat memeriksa surat di{" "}
                 <Link href="/verifikasi">/verifikasi</Link>. Kode dibuat 8 karakter tanpa huruf
@@ -285,7 +285,7 @@ export default async function PengaturanPage() {
               <IconInfo size={14} />
             </span>
             <div>
-              <h4>Belum ada autentikasi pengguna</h4>
+              <h3>Belum ada autentikasi pengguna</h3>
               <p>
                 Halaman admin saat ini terbuka untuk siapa pun yang bisa mengakses server.
                 Sebelum dipakai di jaringan kantor, tambahkan login dan pembatasan peran.
@@ -298,7 +298,7 @@ export default async function PengaturanPage() {
               <IconSettings size={14} />
             </span>
             <div>
-              <h4>Cadangkan basis data secara berkala</h4>
+              <h3>Cadangkan basis data secara berkala</h3>
               <p>
                 Lampiran surat tersimpan di dalam basis data sebagai base64, sehingga berkas
                 cadangan berisi seluruh dokumen sekaligus.
@@ -312,7 +312,7 @@ export default async function PengaturanPage() {
         <article className="panel settings-panel">
           <div className="panel-head">
             <div>
-              <h3>Akun Anda</h3>
+              <h2>Akun Anda</h2>
               <p>Identitas yang sedang masuk pada peramban ini</p>
             </div>
           </div>
@@ -344,7 +344,7 @@ export default async function PengaturanPage() {
             <IconLock size={22} />
           </div>
           <p className="eyebrow">KEAMANAN AKUN</p>
-          <h3>Ubah Kata Sandi</h3>
+          <h2>Ubah Kata Sandi</h2>
           <p>
             Ganti kata sandi akun Anda sendiri. Minimal 8 karakter dan harus memuat huruf serta
             angka.

@@ -31,7 +31,7 @@ export default async function PegawaiPage() {
       <section className="panel table-panel">
         <div className="table-toolbar">
           <div>
-            <h3>Data Pegawai</h3>
+            <h2>Data Pegawai</h2>
             <p>
               {daftar.length} pegawai · {aktif} aktif · {punyaWa} punya nomor WhatsApp
             </p>
@@ -157,7 +157,7 @@ export default async function PegawaiPage() {
                     {initialsOf(item.name)}
                   </div>
                   <div className="staff-info">
-                    <h4>{item.name}</h4>
+                    <h3>{item.name}</h3>
                     <p>{item.position}</p>
                     <span>{item.employeeNumber || "NIP belum diisi"}</span>
                   </div>

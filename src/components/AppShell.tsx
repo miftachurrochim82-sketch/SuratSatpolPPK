@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useSyncExternalStore, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore, useState, type ReactNode } from "react";
 import {
   IconBell,
   IconChevronRight,
@@ -105,17 +105,27 @@ export default function AppShell({
   const pathname = usePathname();
   const [laciTerbuka, setLaciTerbuka] = useState(false);
   const [notifTerbuka, setNotifTerbuka] = useState(false);
+  /* fokus harus berpindah ke panel saat dibuka, lalu kembali ke lonceng saat ditutup */
+  const lonceng = useRef<HTMLButtonElement>(null);
+  const tombolTutupNotif = useRef<HTMLButtonElement>(null);
   const [sempit, setSempit] = useLebarSidebar();
 
-  // panel notifikasi ditutup dengan Esc atau klik di luarnya
+  // panel notifikasi: fokus pindah ke dalam, ditutup dengan Esc atau klik di luarnya
   useEffect(() => {
     if (!notifTerbuka) return;
+    tombolTutupNotif.current?.focus();
     const lewatPapanTik = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setNotifTerbuka(false);
+      if (event.key === "Escape") {
+        setNotifTerbuka(false);
+        lonceng.current?.focus();
+      }
     };
     const klikDiLuar = (event: MouseEvent) => {
       const wadah = document.querySelector(".notif-wrap");
-      if (wadah && !wadah.contains(event.target as Node)) setNotifTerbuka(false);
+      if (wadah && !wadah.contains(event.target as Node)) {
+        setNotifTerbuka(false);
+        lonceng.current?.focus();
+      }
     };
     document.addEventListener("keydown", lewatPapanTik);
     document.addEventListener("mousedown", klikDiLuar);
@@ -301,7 +311,12 @@ export default function AppShell({
                 aria-label={`Disposisi menunggu: ${pendingDispositions}`}
                 aria-expanded={notifTerbuka}
                 aria-haspopup="dialog"
-                onClick={() => setNotifTerbuka((lama) => !lama)}
+                ref={lonceng}
+                onClick={() => {
+                  const jadi = !notifTerbuka;
+                  setNotifTerbuka(jadi);
+                  if (!jadi) lonceng.current?.focus();
+                }}
               >
                 <IconBell size={17} />
                 {pendingDispositions > 0 ? <i aria-hidden="true" /> : null}
@@ -315,7 +330,11 @@ export default function AppShell({
                       type="button"
                       className="modal-close"
                       aria-label="Tutup pemberitahuan"
-                      onClick={() => setNotifTerbuka(false)}
+                      ref={tombolTutupNotif}
+                      onClick={() => {
+                        setNotifTerbuka(false);
+                        lonceng.current?.focus();
+                      }}
                     >
                       ✕
                     </button>
