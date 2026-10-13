@@ -223,32 +223,32 @@ export default async function SuratKeluarPage() {
               ) : (
                 surat.map((item) => (
                   <tr key={item.id} data-kode={item.classificationCode}>
-                    <td>
+                    <td data-label="Agenda">
                       <span className="agenda-no">{String(item.agendaNo).padStart(3, "0")}</span>
                     </td>
-                    <td className="number-cell">
+                    <td data-label="Nomor surat" className="number-cell">
                       {item.officialNumber}
                       <small>Kode {item.verificationCode}</small>
                     </td>
-                    <td>{item.recipient}</td>
-                    <td className="subject-cell" title={item.subject}>
+                    <td data-label="Tujuan">{item.recipient}</td>
+                    <td data-label="Perihal" className="subject-cell" title={item.subject}>
                       {item.subject}
                     </td>
-                    <td>
+                    <td data-label="Penandatangan">
                       {item.signer}
                       <small>
                         {item.classificationCode} —{" "}
                         {petaKlasifikasi.get(item.classificationCode) ?? "—"}
                       </small>
                     </td>
-                    <td>{formatDateShort(item.letterDate)}</td>
-                    <td>
+                    <td data-label="Tanggal">{formatDateShort(item.letterDate)}</td>
+                    <td data-label="Arsip">
                       <span className={`status-pill ${WARNA_ARSIP[item.archiveStatus] ?? "slate"}`}>
                         <i aria-hidden="true" />
                         {item.archiveStatus}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Aksi">
                       <div className="row-actions">
                         <QrModal
                           code={item.verificationCode}

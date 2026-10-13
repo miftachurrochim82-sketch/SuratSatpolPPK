@@ -205,34 +205,34 @@ export default async function SuratMasukPage() {
               ) : (
                 surat.map((item) => (
                   <tr key={item.id} data-kode={item.classificationCode}>
-                    <td>
+                    <td data-label="Agenda">
                       <span className="agenda-no">{String(item.agendaNo).padStart(3, "0")}</span>
                     </td>
-                    <td className="number-cell">
+                    <td data-label="Nomor surat" className="number-cell">
                       {item.letterNumber}
                       <small>{item.securityLevel}</small>
                     </td>
-                    <td>{item.sender}</td>
-                    <td className="subject-cell" title={item.subject}>
+                    <td data-label="Pengirim">{item.sender}</td>
+                    <td data-label="Perihal" className="subject-cell" title={item.subject}>
                       {item.subject}
                     </td>
-                    <td>
+                    <td data-label="Klasifikasi">
                       <span className="class-code" style={{ minWidth: 42, padding: "5px 7px" }}>
                         {item.classificationCode}
                       </span>
                       <small>{petaKlasifikasi.get(item.classificationCode) ?? "—"}</small>
                     </td>
-                    <td>
+                    <td data-label="Diterima">
                       {formatDateShort(item.receivedDate)}
                       <small>Surat {formatDate(item.letterDate)}</small>
                     </td>
-                    <td>
+                    <td data-label="Disposisi">
                       <span className={`status-pill ${WARNA_STATUS[item.dispositionStatus] ?? "slate"}`}>
                         <i aria-hidden="true" />
                         {item.dispositionStatus}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Aksi">
                       <div className="row-actions">
                         <DetailModal title={item.subject} eyebrow="RINCIAN SURAT MASUK">
                           <div>

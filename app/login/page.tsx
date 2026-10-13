@@ -64,8 +64,8 @@ export default async function LoginPage({
           <summary
             style={{
               cursor: "pointer",
-              color: "#7e8ea1",
-              fontSize: 10,
+              color: "#5f7189",
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: ".3px",
             }}
@@ -76,7 +76,7 @@ export default async function LoginPage({
             {PERAN.map((peran) => (
               <div key={peran} style={{ gridTemplateColumns: "110px 1fr" }}>
                 <dt>{DEFINISI[peran].label}</dt>
-                <dd style={{ fontWeight: 400, fontSize: 10, lineHeight: 15 }}>
+                <dd style={{ fontWeight: 400, fontSize: 13, lineHeight: 19 }}>
                   {DEFINISI[peran].keterangan}
                 </dd>
               </div>
