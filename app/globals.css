@@ -413,3 +413,11 @@ textarea:focus-visible, summary:focus-visible, [role="button"]:focus-visible,
 .search-field { min-width: 0; }
 .search-field input { min-width: 0; }
 .verify-card form .button { flex: 0 0 auto; }
+
+/* Kotak pencarian memakai tombol pembersih sendiri, jadi tombol bawaan peramban
+   (tanda ✕ kecil di ujung kanan) disembunyikan supaya tidak muncul dua sekaligus. */
+.search-field input[type="search"]::-webkit-search-cancel-button,
+.search-field input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none; appearance: none;
+}
+.search-field input[type="search"]::-ms-clear { display: none; width: 0; height: 0; }
