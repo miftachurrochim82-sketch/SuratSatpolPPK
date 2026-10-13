@@ -11,6 +11,7 @@ import { wajibIzin } from "@/lib/auth";
 import { PERAN, DEFINISI, definisiPeran } from "@/lib/permissions";
 import { formatDateTime, initialsOf } from "@/lib/format";
 import FormModal from "@/components/FormModal";
+import GridFilter from "@/components/GridFilter";
 import {
   IconInfo,
   IconKey,
@@ -166,14 +167,34 @@ export default async function PenggunaPage() {
           </p>
         </div>
       ) : (
-        <div className="staff-grid" style={{ padding: 0 }}>
+        <>
+        <GridFilter
+          placeholder="Cari nama, nama pengguna, atau peran…"
+          targetId="grid-pengguna"
+          kartuSelector=".staff-card"
+          satuan="akun"
+          options={[
+            { value: "Aktif", label: "Aktif" },
+            { value: "Nonaktif", label: "Nonaktif" },
+          ]}
+          kosong={{
+            judul: "Tidak ada akun yang cocok",
+            pesan: "Ubah kata pencarian atau pilih status lain.",
+          }}
+        />
+        <div className="staff-grid" id="grid-pengguna" style={{ padding: 0 }}>
           {daftar.map((item) => {
             const orang = item.staffId ? petaPegawai.get(item.staffId) : null;
             const diriSendiri = item.id === pengguna.id;
             const adminTerakhir = item.role === "admin" && jumlahAdmin <= 1;
 
             return (
-              <article className="staff-card" key={item.id}>
+              <article
+                className="staff-card"
+                key={item.id}
+                data-status={item.status}
+                data-peran={definisiPeran(item.role).label}
+              >
                 <div className="staff-avatar" aria-hidden="true">
                   {initialsOf(item.name)}
                 </div>
@@ -325,6 +346,7 @@ export default async function PenggunaPage() {
             );
           })}
         </div>
+        </>
       )}
 
       <p className="system-note" style={{ marginTop: 16, justifyContent: "center" }}>

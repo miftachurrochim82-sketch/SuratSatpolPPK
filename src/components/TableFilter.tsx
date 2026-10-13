@@ -34,6 +34,15 @@ function tanggalAngka(teks: string) {
   return Number(`${cocok[3]}${String(bulan).padStart(2, "0")}${cocok[1].padStart(2, "0")}`);
 }
 
+/** Teks baris tanpa isi kendali (select/option/button) agar pencarian tidak salah cocok. */
+function teksUntukCari(el: HTMLElement) {
+  const salinan = el.cloneNode(true) as HTMLElement;
+  salinan.querySelectorAll("select, option, button, script, style").forEach((n) => n.remove());
+  return (salinan.textContent ?? "").toLowerCase();
+}
+
+const ingatanTeks = new WeakMap<HTMLElement, string>();
+
 function barisTerlihat(tbody: HTMLElement, rowSelector: string) {
   return Array.from(tbody.querySelectorAll<HTMLTableRowElement>(rowSelector)).filter(
     (baris) => baris.dataset.empty !== "true" && baris.style.display !== "none",
@@ -74,7 +83,8 @@ export default function TableFilter({
           baris.style.display = cari || kode ? "none" : "";
           return;
         }
-        const cocokTeks = !cari || (baris.textContent ?? "").toLowerCase().includes(cari);
+        if (!ingatanTeks.has(baris)) ingatanTeks.set(baris, teksUntukCari(baris));
+        const cocokTeks = !cari || (ingatanTeks.get(baris) ?? "").includes(cari);
         const cocokKode = !kode || (baris.getAttribute(filterAttribute) ?? "") === kode;
         const tampil = cocokTeks && cocokKode;
         baris.style.display = tampil ? "" : "none";

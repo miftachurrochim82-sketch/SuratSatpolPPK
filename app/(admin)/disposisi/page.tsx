@@ -22,6 +22,7 @@ import {
   toDateInputValue,
 } from "@/lib/format";
 import FormModal from "@/components/FormModal";
+import GridFilter from "@/components/GridFilter";
 import DispositionPrint from "@/components/DispositionPrint";
 import {
   IconAlert,
@@ -208,6 +209,23 @@ export default async function DisposisiPage() {
           </div>
         ) : null}
 
+        {disposisi.length > 0 ? (
+          <GridFilter
+            placeholder="Cari perihal, nomor surat, instruksi, atau penerima…"
+            targetId="grid-disposisi"
+            kartuSelector=".disposition-card"
+            satuan="disposisi"
+            options={[
+              { value: "Pending", label: "Pending" },
+              { value: "Selesai", label: "Selesai" },
+            ]}
+            kosong={{
+              judul: "Tidak ada disposisi yang cocok",
+              pesan: "Ubah kata pencarian atau pilih status lain.",
+            }}
+          />
+        ) : null}
+
         {disposisi.length === 0 ? (
           <div className="empty-state" style={{ minHeight: 220 }}>
             <div className="empty-icon" aria-hidden="true">
@@ -220,7 +238,7 @@ export default async function DisposisiPage() {
             </p>
           </div>
         ) : (
-          <div className="disposition-grid">
+          <div className="disposition-grid" id="grid-disposisi">
             {disposisi.map((item) => {
               const surat = petaSurat.get(item.incomingLetterId);
               const orang = petaPegawai.get(item.staffId);
@@ -236,7 +254,11 @@ export default async function DisposisiPage() {
               );
 
               return (
-                <article className="disposition-card" key={item.id}>
+                <article
+                  className="disposition-card"
+                  key={item.id}
+                  data-status={item.followUpStatus}
+                >
                   <div className="disp-top">
                     <div className="disp-symbol" aria-hidden="true">
                       <IconDisposition size={15} />

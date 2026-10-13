@@ -6,6 +6,7 @@ import { createStaff, deleteStaff } from "@/actions/master";
 import { listStaff } from "@/lib/queries";
 import { initialsOf } from "@/lib/format";
 import FormModal from "@/components/FormModal";
+import GridFilter from "@/components/GridFilter";
 import {
   IconInfo,
   IconPhone,
@@ -117,6 +118,24 @@ export default async function PegawaiPage() {
       ) : null}
         </div>
 
+        {daftar.length > 0 ? (
+          <GridFilter
+            placeholder="Cari nama, jabatan, atau NIP…"
+            targetId="grid-pegawai"
+            kartuSelector=".staff-card"
+            satuan="pegawai"
+            options={[
+              { value: "Aktif", label: "Aktif" },
+              { value: "Cuti", label: "Cuti" },
+              { value: "Nonaktif", label: "Nonaktif" },
+            ]}
+            kosong={{
+              judul: "Tidak ada pegawai yang cocok",
+              pesan: "Ubah kata pencarian atau pilih status lain.",
+            }}
+          />
+        ) : null}
+
         {daftar.length === 0 ? (
           <div className="empty-state" style={{ minHeight: 220 }}>
             <div className="empty-icon" aria-hidden="true">
@@ -129,11 +148,11 @@ export default async function PegawaiPage() {
             </p>
           </div>
         ) : (
-          <div className="staff-grid">
+          <div className="staff-grid" id="grid-pegawai">
             {daftar.map((item) => {
               const nomorWa = item.whatsapp?.replace(/[^\d]/g, "") ?? "";
               return (
-                <article className="staff-card" key={item.id}>
+                <article className="staff-card" key={item.id} data-status={item.status}>
                   <div className="staff-avatar" aria-hidden="true">
                     {initialsOf(item.name)}
                   </div>
