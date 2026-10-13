@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { dispositions, incomingLetters, staff } from "@/db/schema";
 import { makeId } from "@/lib/ids";
 import type { ActionState } from "@/lib/action-state";
+import { cekIzinAksi } from "@/lib/auth";
 
 function teks(formData: FormData, kunci: string) {
   const nilai = formData.get(kunci);
@@ -16,6 +17,9 @@ export async function createDisposition(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const izin = await cekIzinAksi("disposisiTulis");
+  if ("pesan" in izin) return { ok: false, message: izin.pesan };
+
   const incomingLetterId = teks(formData, "incomingLetterId");
   const staffId = teks(formData, "staffId");
   const instruction = teks(formData, "instruction");
@@ -75,6 +79,9 @@ export async function createDisposition(
 }
 
 export async function setDispositionStatus(formData: FormData) {
+  const izin = await cekIzinAksi("disposisiTulis");
+  if ("pesan" in izin) return;
+
   const id = teks(formData, "id");
   const status = teks(formData, "status");
   if (!id || !status) return;
@@ -91,6 +98,9 @@ export async function setDispositionStatus(formData: FormData) {
 }
 
 export async function markWhatsappSent(formData: FormData) {
+  const izin = await cekIzinAksi("disposisiTulis");
+  if ("pesan" in izin) return;
+
   const id = teks(formData, "id");
   if (!id) return;
   try {
@@ -105,6 +115,9 @@ export async function markWhatsappSent(formData: FormData) {
 }
 
 export async function deleteDisposition(formData: FormData) {
+  const izin = await cekIzinAksi("hapus");
+  if ("pesan" in izin) return;
+
   const id = teks(formData, "id");
   if (!id) return;
   try {

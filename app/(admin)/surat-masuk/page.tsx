@@ -13,6 +13,9 @@ import {
   IconTrash,
 } from "@/components/Icons";
 import Link from "next/link";
+import { wajibMasuk } from "@/lib/auth";
+import { boleh } from "@/lib/permissions";
+
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +32,10 @@ export default async function SuratMasukPage() {
     listClassifications(),
   ]);
 
+  const pengguna = await wajibMasuk();
+  const bolehTulis = boleh(pengguna.role, "suratMasukTulis");
+  const bolehHapus = boleh(pengguna.role, "hapus");
+
   const hariIni = toDateInputValue();
   const petaKlasifikasi = new Map(klasifikasi.map((item) => [item.code, item.name]));
 
@@ -43,7 +50,8 @@ export default async function SuratMasukPage() {
               {surat.length > 0 ? ` · agenda terakhir No. ${surat[0].agendaNo}` : ""}
             </p>
           </div>
-          <FormModal
+          {bolehTulis ? (
+<FormModal
             action={createIncomingLetter}
             title="Catat Surat Masuk"
             eyebrow="FORMULIR ADMINISTRASI"
@@ -151,6 +159,7 @@ export default async function SuratMasukPage() {
               </p>
             ) : null}
           </FormModal>
+      ) : null}
         </div>
 
         <TableFilter
@@ -285,7 +294,10 @@ export default async function SuratMasukPage() {
                           ) : null}
                         </DetailModal>
 
-                        <form action={deleteIncomingLetter}>
+                        {bolehHapus ? (
+
+
+                          <form action={deleteIncomingLetter}>
                           <input type="hidden" name="id" value={item.id} />
                           <button
                             type="submit"
@@ -297,6 +309,9 @@ export default async function SuratMasukPage() {
                             <IconTrash size={13} />
                           </button>
                         </form>
+
+
+                        ) : null}
                       </div>
                     </td>
                   </tr>

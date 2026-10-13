@@ -129,3 +129,78 @@ a { color: inherit; text-decoration: none; }
   .print-logo { width: 56px; height: 61px; display: grid; place-items: center; clip-path: polygon(50% 0, 92% 16%, 84% 76%, 50% 100%, 16% 76%, 8% 16%); color: #fff; background: #333; font-family: Georgia, serif; font-size: 12px; font-weight: 700; }
   .print-disposition h1 { margin: 0; font-size: 16px; }.print-disposition header p { margin: 3px 0; font-size: 11px; }.print-disposition header span { display: inline-block; padding: 3px 6px; border: 1px solid #111; font-size: 10px; font-weight: 700; }.print-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 22px; border-top: 1px solid #222; border-left: 1px solid #222; }.print-grid p { display: grid; grid-template-columns: 132px 1fr; min-height: 44px; margin: 0; border-right: 1px solid #222; border-bottom: 1px solid #222; font-size: 11px; }.print-grid p.wide { grid-column: 1 / -1; }.print-grid b { padding: 10px; border-right: 1px solid #222; background: #f4f4f4; }.print-grid span { padding: 10px; line-height: 16px; }.print-disposition footer { display: flex; justify-content: space-between; gap: 110px; margin-top: 55px; padding: 0 45px; text-align: center; }.print-disposition footer div { display: grid; gap: 50px; font-size: 11px; }.print-disposition footer strong { border-top: 1px solid #222; padding-top: 5px; }
 }
+
+/* ==========================================================================
+   SIDEBAR LIPAT (tambahan)
+   Keadaan disimpan pada .app-shell: kelas .sempit = sidebar mode ikon saja.
+   Semua aturan ditaruh di min-width 821px supaya tidak bentrok dengan mode
+   laci (drawer) di layar kecil.
+   ========================================================================== */
+
+/* tombol pembuka/penutup di topbar — hanya muncul di layar lebar */
+.sidebar-toggle { display: none; width: 34px; height: 34px; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 8px; color: #5d6e83; background: #fff; transition: .18s ease; }
+.sidebar-toggle:hover { color: var(--navy); border-color: #c3d2e2; background: #f7fafd; }
+.sidebar-toggle svg { pointer-events: none; }
+
+/* tombol keluar di blok pengguna */
+.keluar-form { margin-left: 6px; }
+.keluar-button { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 7px; color: #9fb2c8; background: rgba(255,255,255,.07); transition: .18s ease; }
+.keluar-button:hover { color: #ffd8dc; background: rgba(226,82,87,.28); }
+
+@media (min-width: 821px) {
+  .sidebar-toggle { display: grid; }
+
+  /* --- sidebar menyempit --- */
+  .app-shell.sempit .sidebar { width: 78px; padding: 25px 12px 17px; }
+  .app-shell.sempit .brand { justify-content: center; padding: 0; }
+  .app-shell.sempit .brand-teks { display: none; }
+  .app-shell.sempit .side-rule { margin: 22px 6px 14px; }
+  .app-shell.sempit .nav-caption { margin: 0 0 6px; padding-left: 4px; color: transparent; height: 10px; overflow: hidden; }
+  .app-shell.sempit .nav-caption::before { content: ""; display: block; width: 18px; height: 1px; margin: 4px auto 0; background: rgba(255,255,255,.22); }
+
+  .app-shell.sempit .nav-link { justify-content: center; align-items: center; padding: 0; gap: 0; }
+  .app-shell.sempit .nav-link span { display: none; }
+  .app-shell.sempit .nav-link.active { box-shadow: inset 0 0 0 2px #f1b94b; background: #2c4a70; }
+  .app-shell.sempit .nav-link b { position: absolute; top: 5px; right: 12px; min-width: 15px; height: 15px; border-radius: 8px; font-size: 9px; }
+
+  .app-shell.sempit .help-card { display: none; }
+  .app-shell.sempit .user-mini { flex-direction: column; gap: 7px; padding: 12px 0 0; }
+  .app-shell.sempit .user-teks { display: none; }
+  .app-shell.sempit .online-dot { top: 12px; left: 50%; margin-left: 3px; }
+  .app-shell.sempit .keluar-form { margin: 0; }
+
+  /* --- konten ikut menyesuaikan --- */
+  .app-shell.sempit .content-wrap { margin-left: 78px; }
+  .app-shell.sempit .today { display: none; }
+}
+
+/* tooltip nama menu saat sidebar menyempit */
+@media (min-width: 821px) {
+  .app-shell.sempit .nav-link { position: relative; }
+  .app-shell.sempit .nav-link::after {
+    content: attr(aria-label);
+    position: absolute;
+    z-index: 60;
+    left: calc(100% + 14px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    padding: 6px 9px;
+    border-radius: 6px;
+    color: #eaf1f9;
+    background: #172a45;
+    box-shadow: 0 8px 20px rgba(15,29,49,.28);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .16s ease, transform .16s ease;
+  }
+  .app-shell.sempit .nav-link:hover::after,
+  .app-shell.sempit .nav-link:focus-visible::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+/* pada layar sedang, sidebar menyempit punya lebar tetap yang sama */
+@media (min-width: 821px) and (max-width: 1190px) {
+  .app-shell.sempit .content-wrap { margin-left: 78px; }
+}

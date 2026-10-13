@@ -8,6 +8,13 @@
       "when": 1791891784997,
       "tag": "0000_legal_medusa",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791893188960,
+      "tag": "0001_burly_malice",
+      "breakpoints": true
     }
   ]
 }

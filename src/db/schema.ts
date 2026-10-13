@@ -98,3 +98,30 @@ export const dispositions = pgTable("dispositions", {
   followUpStatus: varchar("follow_up_status", { length: 24 }).notNull().default("Pending"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const users = pgTable(
+  "users",
+  {
+    id: varchar("id", { length: 32 }).primaryKey(),
+    username: varchar("username", { length: 60 }).notNull(),
+    name: varchar("name", { length: 160 }).notNull(),
+    passwordHash: text("password_hash").notNull(),
+    role: varchar("role", { length: 24 }).notNull().default("tu"),
+    staffId: varchar("staff_id", { length: 32 }).references(() => staff.id),
+    status: varchar("status", { length: 20 }).notNull().default("Aktif"),
+    lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex("users_username_unique").on(table.username)],
+);
+
+export const sessions = pgTable("sessions", {
+  tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+  userId: varchar("user_id", { length: 32 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type UserRow = typeof users.$inferSelect;

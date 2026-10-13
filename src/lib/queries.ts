@@ -1,4 +1,4 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   classifications,
@@ -6,7 +6,9 @@ import {
   incomingLetters,
   outgoingLetters,
   staff,
+  users,
 } from "@/db/schema";
+import type { PenggunaAktif } from "@/lib/auth";
 
 
 export type IncomingRow = typeof incomingLetters.$inferSelect;
@@ -24,12 +26,24 @@ async function aman<T>(kerja: () => Promise<T>, cadangan: T): Promise<T> {
   }
 }
 
-export async function countPendingDispositions() {
+/**
+ * Jumlah disposisi pending.
+ *
+ * Untuk peran "pegawai", angka dibatasi hanya disposisi yang ditujukan
+ * kepadanya — jangan sampai ia melihat beban kerja pegawai lain.
+ */
+export async function countPendingDispositions(pengguna?: PenggunaAktif | null) {
+  const batasiStaff = pengguna?.role === "pegawai" ? pengguna.staffId : null;
+
   return aman(async () => {
+    const syarat = batasiStaff
+      ? and(eq(dispositions.followUpStatus, "Pending"), eq(dispositions.staffId, batasiStaff))
+      : eq(dispositions.followUpStatus, "Pending");
+
     const [row] = await db
       .select({ jumlah: sql<number>`count(*)::int` })
       .from(dispositions)
-      .where(eq(dispositions.followUpStatus, "Pending"));
+      .where(syarat);
     return row?.jumlah ?? 0;
   }, 0);
 }
@@ -58,10 +72,54 @@ export async function listOutgoingLetters() {
   );
 }
 
-export async function listDispositions() {
+export async function listDispositions(pengguna?: PenggunaAktif | null) {
+  const batasiStaff = pengguna?.role === "pegawai" ? pengguna.staffId : null;
+
+  if (pengguna?.role === "pegawai" && !batasiStaff) {
+    // akun pegawai tanpa tautan ke data pegawai tidak melihat disposisi apa pun
+    return [] as DispositionRow[];
+  }
+
   return aman(
-    () => db.select().from(dispositions).orderBy(desc(dispositions.createdAt)).limit(200),
+    () =>
+      batasiStaff
+        ? db
+            .select()
+            .from(dispositions)
+            .where(eq(dispositions.staffId, batasiStaff))
+            .orderBy(desc(dispositions.createdAt))
+            .limit(200)
+        : db.select().from(dispositions).orderBy(desc(dispositions.createdAt)).limit(200),
     [] as DispositionRow[],
+  );
+}
+
+export async function listUsers() {
+  return aman(
+    () =>
+      db
+        .select({
+          id: users.id,
+          username: users.username,
+          name: users.name,
+          role: users.role,
+          staffId: users.staffId,
+          status: users.status,
+          lastLoginAt: users.lastLoginAt,
+          createdAt: users.createdAt,
+        })
+        .from(users)
+        .orderBy(users.username),
+    [] as {
+      id: string;
+      username: string;
+      name: string;
+      role: string;
+      staffId: string | null;
+      status: string;
+      lastLoginAt: Date | null;
+      createdAt: Date;
+    }[],
   );
 }
 
@@ -134,12 +192,11 @@ export type DashboardData = {
   grafik: { label: string; masuk: number; keluar: number; disposisi: number }[];
 };
 
-export async function getDashboardData(): Promise<DashboardData> {
-  const [masuk, keluar, disp, klass] = await Promise.all([
+export async function getDashboardData(pengguna?: PenggunaAktif | null): Promise<DashboardData> {
+  const [masuk, keluar, disp] = await Promise.all([
     listIncomingLetters(),
     listOutgoingLetters(),
-    listDispositions(),
-    listClassifications(),
+    listDispositions(pengguna),
   ]);
 
   const sekarang = new Date();

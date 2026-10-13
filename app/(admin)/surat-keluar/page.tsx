@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { wajibMasuk } from "@/lib/auth";
+import { boleh } from "@/lib/permissions";
+
 import {
   createOutgoingLetter,
   deleteOutgoingLetter,
@@ -40,6 +43,10 @@ export default async function SuratKeluarPage() {
     getSettings(),
   ]);
 
+  const pengguna = await wajibMasuk();
+  const bolehTulis = boleh(pengguna.role, "suratKeluarTulis");
+  const bolehHapus = boleh(pengguna.role, "hapus");
+
   const hariIni = toDateInputValue();
   const petaKlasifikasi = new Map(klasifikasi.map((item) => [item.code, item.name]));
 
@@ -59,7 +66,8 @@ export default async function SuratKeluarPage() {
               {surat.length > 0 ? " · setiap surat punya kode verifikasi QR" : ""}
             </p>
           </div>
-          <FormModal
+          {bolehTulis ? (
+<FormModal
             action={createOutgoingLetter}
             title="Catat Surat Keluar"
             eyebrow="FORMULIR ADMINISTRASI"
@@ -169,6 +177,7 @@ export default async function SuratKeluarPage() {
               </p>
             ) : null}
           </FormModal>
+      ) : null}
         </div>
 
         <TableFilter
@@ -308,7 +317,7 @@ export default async function SuratKeluarPage() {
                           ) : null}
                         </DetailModal>
 
-                        {item.archiveStatus !== "Diarsipkan" ? (
+                        {bolehTulis && item.archiveStatus !== "Diarsipkan" ? (
                           <form action={updateArchiveStatus}>
                             <input type="hidden" name="id" value={item.id} />
                             <input type="hidden" name="status" value="Diarsipkan" />
@@ -324,7 +333,10 @@ export default async function SuratKeluarPage() {
                           </form>
                         ) : null}
 
-                        <form action={deleteOutgoingLetter}>
+                        {bolehHapus ? (
+
+
+                          <form action={deleteOutgoingLetter}>
                           <input type="hidden" name="id" value={item.id} />
                           <button
                             type="submit"
@@ -336,6 +348,9 @@ export default async function SuratKeluarPage() {
                             <IconTrash size={13} />
                           </button>
                         </form>
+
+
+                        ) : null}
                       </div>
                     </td>
                   </tr>

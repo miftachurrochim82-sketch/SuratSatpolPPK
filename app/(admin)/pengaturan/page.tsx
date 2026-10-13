@@ -1,18 +1,29 @@
 import Link from "next/link";
+import { wajibMasuk } from "@/lib/auth";
+import { boleh } from "@/lib/permissions";
+
 import { saveSettings } from "@/actions/master";
+import { ubahSandiSendiri } from "@/actions/auth";
 import { getSettings, isDatabaseReady, DEFAULT_SETTINGS } from "@/lib/settings";
 import FormModal from "@/components/FormModal";
 import {
   IconAlert,
   IconInfo,
+  IconKey,
+  IconLock,
   IconSettings,
   IconShield,
+  IconUsers,
   IconWhatsapp,
 } from "@/components/Icons";
+import { definisiPeran, labelPeran } from "@/lib/permissions";
 
 export const dynamic = "force-dynamic";
 
 export default async function PengaturanPage() {
+  const pengguna = await wajibMasuk();
+  const bolehUbah = boleh(pengguna.role, "pengaturanTulis");
+
   const [settings, dbSiap] = await Promise.all([getSettings(), isDatabaseReady()]);
   const masihBawaan = settings.institution_name === DEFAULT_SETTINGS.institution_name;
 
@@ -39,7 +50,8 @@ export default async function PengaturanPage() {
             {masihBawaan ? <span className="month-chip">Masih bawaan</span> : null}
           </div>
 
-          <FormModal
+          {bolehUbah ? (
+            <FormModal
             action={saveSettings}
             title="Ubah Identitas Instansi"
             eyebrow="PENGATURAN"
@@ -143,6 +155,7 @@ export default async function PengaturanPage() {
               </div>
             </div>
           </FormModal>
+      ) : null}
 
           <dl className="verify-data" style={{ marginTop: 20, marginBottom: 0 }}>
             <div>
@@ -196,6 +209,7 @@ export default async function PengaturanPage() {
             <strong>{settings.wa_status}</strong>
           </div>
 
+{bolehUbah ? (
           <FormModal
             action={saveSettings}
             title="Alamat Gateway WhatsApp"
@@ -234,6 +248,7 @@ export default async function PengaturanPage() {
             <input type="hidden" name="head_position" value={settings.head_position} />
             <input type="hidden" name="letter_code" value={settings.letter_code} />
           </FormModal>
+          ) : null}
 
           <span className="security-copy">
             Tanpa gateway, semua disposisi tetap tercatat dan bisa diteruskan secara manual.
@@ -292,6 +307,125 @@ export default async function PengaturanPage() {
           </div>
         </div>
       </section>
+
+      <section className="settings-grid" style={{ marginTop: 18 }}>
+        <article className="panel settings-panel">
+          <div className="panel-head">
+            <div>
+              <h3>Akun Anda</h3>
+              <p>Identitas yang sedang masuk pada peramban ini</p>
+            </div>
+          </div>
+
+          <dl className="verify-data" style={{ margin: "18px 0 0" }}>
+            <div>
+              <dt>Nama petugas</dt>
+              <dd>{pengguna.name}</dd>
+            </div>
+            <div>
+              <dt>Nama pengguna</dt>
+              <dd>@{pengguna.username}</dd>
+            </div>
+            <div>
+              <dt>Peran</dt>
+              <dd>{labelPeran(pengguna.role)}</dd>
+            </div>
+            <div>
+              <dt>Hak akses</dt>
+              <dd style={{ fontWeight: 400, fontSize: 10, lineHeight: 15 }}>
+                {definisiPeran(pengguna.role).keterangan}
+              </dd>
+            </div>
+          </dl>
+        </article>
+
+        <article className="panel wa-panel">
+          <div className="wa-icon" aria-hidden="true">
+            <IconLock size={22} />
+          </div>
+          <p className="eyebrow">KEAMANAN AKUN</p>
+          <h3>Ubah Kata Sandi</h3>
+          <p>
+            Ganti kata sandi akun Anda sendiri. Minimal 8 karakter dan harus memuat huruf serta
+            angka.
+          </p>
+
+          <FormModal
+            action={ubahSandiSendiri}
+            title="Ubah Kata Sandi"
+            eyebrow="KEAMANAN AKUN"
+            trigger="Ubah kata sandi"
+            triggerClass="button primary full-button"
+            triggerIcon={<IconKey size={14} />}
+            submitLabel="Simpan kata sandi"
+          >
+            <div className="form-grid">
+              <label className="field full">
+                <span>
+                  Kata sandi saat ini <b>*</b>
+                </span>
+                <input
+                  name="sandiLama"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                />
+              </label>
+
+              <label className="field">
+                <span>
+                  Kata sandi baru <b>*</b>
+                </span>
+                <input
+                  name="sandiBaru"
+                  type="password"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  placeholder="Minimal 8 karakter"
+                />
+              </label>
+
+              <label className="field">
+                <span>
+                  Ulangi kata sandi baru <b>*</b>
+                </span>
+                <input
+                  name="sandiUlang"
+                  type="password"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                />
+              </label>
+
+              <div className="full">
+                <div className="notification-note">
+                  <IconInfo size={14} />
+                  <span>
+                    Gunakan kata sandi yang tidak dipakai di layanan lain. Jangan bagikan kata
+                    sandi kepada siapa pun, termasuk administrator.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </FormModal>
+
+          <span className="security-copy">
+            Kata sandi disimpan dalam bentuk hash scrypt, bukan teks biasa. Setiap kali Anda
+            masuk, sistem membandingkan hash-nya, bukan kata sandinya.
+          </span>
+        </article>
+      </section>
+
+      {bolehUbah ? (
+        <p className="system-note" style={{ marginTop: 16, justifyContent: "center" }}>
+          <IconUsers size={13} />
+          <span>
+            Kelola akun petugas lain di <Link href="/pengguna">halaman Pengguna Sistem</Link>.
+          </span>
+        </p>
+      ) : null}
     </>
   );
 }

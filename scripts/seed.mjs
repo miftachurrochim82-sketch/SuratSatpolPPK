@@ -11,6 +11,7 @@
  */
 
 import "dotenv/config";
+import { randomBytes, scryptSync } from "node:crypto";
 import { Pool } from "pg";
 
 const connectionString = process.env.DATABASE_URL;
@@ -31,6 +32,13 @@ function tanggal(geserHari = 0) {
 
 function id(prefix, urut) {
   return `${prefix}-SEED-${String(urut).padStart(3, "0")}`;
+}
+
+/** Sama dengan hashPassword() di src/lib/auth.ts: scrypt$<salt>$<kunci> */
+function hashPassword(sandi) {
+  const garam = randomBytes(16).toString("hex");
+  const kunci = scryptSync(sandi, garam, 64).toString("hex");
+  return `scrypt$${garam}$${kunci}`;
 }
 
 const KODE_VERIFIKASI = [
@@ -58,6 +66,17 @@ const KLASIFIKASI = [
   ["HM.04", "Laporan", "Laporan hasil kegiatan atau kejadian."],
   ["HM.05", "Nota Dinas", "Komunikasi internal antar bidang."],
   ["HM.06", "Surat Tugas", "Penugasan pegawai untuk kegiatan tertentu."],
+];
+
+/**
+ * Akun bawaan. WAJIB diganti setelah pemasangan pertama —
+ * lihat catatan di akhir keluaran skrip ini.
+ */
+const AKUN = [
+  ["US-SEED-001", "admin", "Administrator Sistem", "Admin#2026", "admin", null],
+  ["US-SEED-002", "tu", "Rina Wulandari", "Tu#2026", "tu", null],
+  ["US-SEED-003", "pimpinan", "Drs. H. Bambang Setiawan, M.Si.", "Pimpinan#2026", "pimpinan", null],
+  ["US-SEED-004", "petugas", "Budi Santoso, S.E.", "Petugas#2026", "pegawai", "PG-SEED-001"],
 ];
 
 const PEGAWAI = [
@@ -126,6 +145,17 @@ async function main() {
          VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT (id) DO NOTHING`,
         [sid, nip, name, position, wa, status],
+      );
+      hasil.rowCount ? (berhasil += 1) : (dilewati += 1);
+    }
+
+    // --- akun pengguna ---
+    for (const [uid, username, name, sandi, role, staffId] of AKUN) {
+      const hasil = await client.query(
+        `INSERT INTO users (id, username, name, password_hash, role, staff_id, status)
+         VALUES ($1, $2, $3, $4, $5, $6, 'Aktif')
+         ON CONFLICT (id) DO NOTHING`,
+        [uid, username, name, hashPassword(sandi), role, staffId],
       );
       hasil.rowCount ? (berhasil += 1) : (dilewati += 1);
     }
@@ -240,6 +270,23 @@ async function main() {
 
   console.log(`\nSelesai. ${berhasil} baris ditambahkan, ${dilewati} dilewati (sudah ada).`);
   console.log("Buka aplikasi lalu lihat halaman Dashboard untuk memeriksa hasilnya.");
+
+  if (berhasil > 0) {
+    console.log("");
+    console.log("================================================================");
+    console.log("  AKUN BAWAAN — SEGERA GANTI KATA SANDINYA");
+    console.log("================================================================");
+    console.log("  Peran        Nama pengguna   Kata sandi");
+    console.log("  -----------  --------------  --------------");
+    console.log("  Admin        admin           Admin#2026");
+    console.log("  Tata Usaha   tu              Tu#2026");
+    console.log("  Pimpinan     pimpinan        Pimpinan#2026");
+    console.log("  Pegawai      petugas         Petugas#2026");
+    console.log("----------------------------------------------------------------");
+    console.log("  Masuk lewat /login, lalu ubah kata sandi di halaman Pengaturan.");
+    console.log("  Hapus atau nonaktifkan akun contoh ini sebelum dipakai sungguhan.");
+    console.log("================================================================");
+  }
 }
 
 main();

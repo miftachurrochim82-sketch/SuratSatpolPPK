@@ -25,18 +25,22 @@ Aplikasi administrasi surat: pencatatan surat masuk, surat keluar, disposisi, ar
 │   │   ├── klasifikasi/page.tsx  # kode klasifikasi surat
 │   │   ├── pegawai/page.tsx      # penerima disposisi
 │   │   └── pengaturan/page.tsx   # identitas instansi
+│   │   └── pengguna/page.tsx     # akun petugas & hak akses
 │   ├── api/
 │   │   ├── health/route.ts       # health check koneksi database
 │   │   ├── qr/route.ts           # generator QR code (PNG)
 │   │   └── lampiran/[id]/route.ts# pengunduh lampiran surat
+│   ├── login/page.tsx            # halaman masuk (di luar kerangka admin)
 │   ├── verifikasi/page.tsx       # portal verifikasi publik
 │   ├── globals.css               # design system (148 kelas CSS)
 │   └── layout.tsx                # root layout
 ├── src/
 │   ├── actions/                  # server actions (simpan/ubah/hapus)
+│   │   ├── auth.ts               # masuk, keluar, ubah kata sandi
 │   │   ├── letters.ts            # surat masuk & keluar
 │   │   ├── dispositions.ts       # disposisi
-│   │   └── master.ts             # klasifikasi, pegawai, pengaturan
+│   │   ├── master.ts             # klasifikasi, pegawai, pengaturan
+│   │   └── users.ts              # pengelolaan akun (khusus administrator)
 │   ├── components/               # komponen React
 │   │   ├── AppShell.tsx          # kerangka sidebar + topbar
 │   │   ├── FormModal.tsx         # formulir dalam modal
@@ -46,8 +50,11 @@ Aplikasi administrasi surat: pencatatan surat masuk, surat keluar, disposisi, ar
 │   │   ├── FileField.tsx         # unggah lampiran (base64)
 │   │   ├── DispositionPrint.tsx  # cetak lembar disposisi
 │   │   ├── PrintPortal.tsx       # penempatan blok cetak
+│   │   ├── LoginForm.tsx         # formulir masuk
 │   │   └── Icons.tsx             # ikon SVG sebaris
 │   ├── lib/
+│   │   ├── auth.ts               # hash sandi, sesi, pemeriksaan izin
+│   │   ├── permissions.ts        # definisi peran & hak akses
 │   │   ├── queries.ts            # pembacaan data dari database
 │   │   ├── settings.ts           # pengaturan instansi
 │   │   ├── format.ts             # format tanggal & teks
@@ -55,7 +62,7 @@ Aplikasi administrasi surat: pencatatan surat masuk, surat keluar, disposisi, ar
 │   │   └── action-state.ts       # tipe hasil server action
 │   └── db/
 │       ├── index.ts              # koneksi pool PostgreSQL + Drizzle
-│       └── schema.ts             # definisi 7 tabel
+│       └── schema.ts             # definisi 9 tabel
 ├── scripts/seed.mjs              # pengisi data contoh
 ├── drizzle/                      # file migrasi SQL (hasil db:generate)
 ├── .env.example                  # template variabel lingkungan
@@ -110,8 +117,21 @@ npm run db:seed
 ```
 
 Menambahkan pengaturan instansi, 6 klasifikasi, 5 pegawai, 9 surat masuk, 8 surat keluar,
-dan 3 disposisi contoh — supaya halaman tidak tampil kosong saat pertama dibuka.
-Aman dijalankan berulang kali; data yang sudah ada tidak akan tertimpa.
+3 disposisi contoh, dan 4 akun pengguna — supaya halaman tidak tampil kosong saat pertama
+dibuka. Aman dijalankan berulang kali; data yang sudah ada tidak akan tertimpa.
+
+Setelah selesai, skrip akan menampilkan daftar **akun bawaan**:
+
+| Peran | Nama pengguna | Kata sandi |
+|---|---|---|
+| Administrator | `admin` | `Admin#2026` |
+| Tata Usaha | `tu` | `Tu#2026` |
+| Pimpinan | `pimpinan` | `Pimpinan#2026` |
+| Pegawai | `petugas` | `Petugas#2026` |
+
+> **Ganti kata sandi ini sebelum dipakai sungguhan.** Caranya: masuk lewat `/login`, buka
+> halaman **Pengaturan → Ubah Kata Sandi**. Akun contoh yang tidak dipakai sebaiknya
+> dinonaktifkan atau dihapus di halaman **Pengguna Sistem**.
 
 ### 4. Jalankan aplikasi
 
@@ -161,12 +181,31 @@ Buka http://localhost:3000
 
 - File `.env` **tidak boleh** di-commit — sudah diblokir `.gitignore`.
 - Kredensial database tidak lagi ditulis di `drizzle.config.ts`, melainkan dibaca dari `DATABASE_URL`.
-- **Halaman admin belum dilindungi login.** Sebelum dipasang di jaringan kantor, tambahkan
-  autentikasi dan pembatasan peran agar tidak semua orang bisa mengubah data surat.
+- Halaman admin sudah dilindungi login dan pembatasan peran. Untuk pemakaian di jaringan
+  kantor, sebaiknya tambahkan HTTPS agar cookie sesi terkirim secara terenkripsi
+  (`secure` otomatis aktif saat `NODE_ENV=production`).
+- Ganti seluruh kata sandi bawaan dari data contoh sebelum aplikasi dipakai.
 - Lampiran tersimpan di dalam basis data sebagai base64, sehingga berkas cadangan basis data
   sekaligus memuat seluruh dokumen surat.
 
 ## Fitur
+
+### Autentikasi & Hak Akses
+- Halaman masuk di `/login`; seluruh halaman admin dialihkan ke sana bila belum masuk
+- Sesi disimpan pada cookie `httpOnly` berumur 7 hari; token disimpan dalam bentuk hash SHA-256
+- Kata sandi disimpan sebagai **hash scrypt** dengan garam per akun, dibandingkan memakai
+  `timingSafeEqual` supaya tidak bocor lewat selisih waktu
+- Empat peran dengan hak akses berbeda (lihat tabel di bawah)
+- Tombol yang tidak diizinkan tidak dirender, **dan** setiap server action memeriksa izinnya
+  sendiri karena action dapat dipanggil langsung tanpa lewat antarmuka
+- Administrator terakhir tidak dapat dihapus atau diturunkan perannya
+- Mengubah peran atau status akun langsung menghapus sesi aktif pengguna tersebut
+
+### Sidebar Lipat
+- Tombol di kiri atas topbar untuk menyempitkan sidebar menjadi mode ikon (78 piksel)
+- Pilihan lebar disimpan di `localStorage`, jadi bertahan saat halaman dibuka kembali
+- Saat menyempit, nama menu muncul sebagai tooltip dan penanda disposisi tetap terlihat
+- Di bawah 820 piksel, sidebar otomatis berubah menjadi laci layar kecil
 
 ### Surat Masuk
 - Pencatatan dengan nomor agenda otomatis
@@ -191,6 +230,23 @@ Buka http://localhost:3000
 - Data pegawai, nomor WhatsApp otomatis dinormalkan ke format `62…`
 - Identitas instansi yang dipakai pada kop, nomor surat, dan portal verifikasi
 
+## Peran dan Hak Akses
+
+| Kemampuan | Administrator | Tata Usaha | Pimpinan | Pegawai |
+|---|:---:|:---:|:---:|:---:|
+| Melihat dashboard & daftar surat | ✅ | ✅ | ✅ | ✅ |
+| Mencatat surat masuk | ✅ | ✅ | — | — |
+| Mencatat surat keluar | ✅ | ✅ | — | — |
+| Membuat disposisi | ✅ | ✅ | ✅ | — |
+| Mengubah data master (klasifikasi, pegawai) | ✅ | — | — | — |
+| Mengubah pengaturan instansi | ✅ | — | — | — |
+| Menghapus data | ✅ | — | — | — |
+| Mengelola akun pengguna | ✅ | — | — | — |
+| Cakupan data | semua | semua | semua | disposisi sendiri |
+
+Peran **Pegawai** perlu ditautkan ke satu baris di tabel `staff` agar dapat melihat disposisi
+yang ditujukan kepadanya. Tautan itu diatur saat membuat akun di halaman Pengguna Sistem.
+
 ## Status Pengembangan
 
 - [x] Struktur project & konfigurasi
@@ -203,5 +259,8 @@ Buka http://localhost:3000
 - [x] Portal verifikasi dokumen publik
 - [x] API health check
 - [x] Skrip data contoh
-- [ ] Autentikasi pengguna & pembatasan peran
+- [x] Autentikasi pengguna & pembatasan peran
+- [x] Sidebar dapat dilipat
 - [ ] Integrasi pengiriman WhatsApp otomatis lewat gateway
+- [ ] Ganti kata sandi wajib pada masuk pertama
+- [ ] Log aktivitas (siapa mengubah apa dan kapan)

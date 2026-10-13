@@ -7,6 +7,7 @@ import { attachments, incomingLetters, outgoingLetters } from "@/db/schema";
 import { makeAgendaNumber, makeId, makeOfficialNumber, makeVerificationCode } from "@/lib/ids";
 import { romanMonth, yearOf } from "@/lib/format";
 import { getSettings } from "@/lib/settings";
+import { cekIzinAksi } from "@/lib/auth";
 
 import type { ActionState } from "@/lib/action-state";
 
@@ -47,6 +48,9 @@ export async function createIncomingLetter(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const izin = await cekIzinAksi("suratMasukTulis");
+  if ("pesan" in izin) return { ok: false, message: izin.pesan };
+
   const letterNumber = teks(formData, "letterNumber");
   const sender = teks(formData, "sender");
   const subject = teks(formData, "subject");
@@ -87,6 +91,11 @@ export async function createIncomingLetter(
 }
 
 export async function deleteIncomingLetter(formData: FormData) {
+  // Tombol hapus tidak dirender untuk peran tanpa izin; pemeriksaan ini
+  // adalah pengaman di sisi server bila action dipanggil langsung.
+  const izin = await cekIzinAksi("hapus");
+  if ("pesan" in izin) return;
+
   const id = teks(formData, "id");
   if (!id) return;
   try {
@@ -105,6 +114,9 @@ export async function createOutgoingLetter(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const izin = await cekIzinAksi("suratKeluarTulis");
+  if ("pesan" in izin) return { ok: false, message: izin.pesan };
+
   const recipient = teks(formData, "recipient");
   const subject = teks(formData, "subject");
   const letterDate = teks(formData, "letterDate");
@@ -167,6 +179,9 @@ export async function createOutgoingLetter(
 }
 
 export async function updateArchiveStatus(formData: FormData) {
+  const izin = await cekIzinAksi("suratKeluarTulis");
+  if ("pesan" in izin) return;
+
   const id = teks(formData, "id");
   const status = teks(formData, "status");
   if (!id || !status) return;
@@ -183,6 +198,9 @@ export async function updateArchiveStatus(formData: FormData) {
 }
 
 export async function deleteOutgoingLetter(formData: FormData) {
+  const izin = await cekIzinAksi("hapus");
+  if ("pesan" in izin) return;
+
   const id = teks(formData, "id");
   if (!id) return;
   try {

@@ -252,3 +252,51 @@ export const IconTrendUp = (p: IconProps) => (
     <path d="M14 8h6v6" />
   </Svg>
 );
+
+export const IconLock = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="4.5" y="10.5" width="15" height="10" rx="2" />
+    <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+    <path d="M12 14.5v2.5" />
+  </Svg>
+);
+
+export const IconLogout = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" />
+    <path d="M10 8l-4 4 4 4" />
+    <path d="M6 12h9" />
+  </Svg>
+);
+
+/** Panel sisi dengan penanda lipat */
+export const IconSidebarCollapse = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M9.5 4v16" />
+    <path d="M16.5 9.5 14 12l2.5 2.5" />
+  </Svg>
+);
+
+export const IconSidebarExpand = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M9.5 4v16" />
+    <path d="M14 9.5 16.5 12 14 14.5" />
+  </Svg>
+);
+
+export const IconKey = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="8" cy="14" r="3.5" />
+    <path d="m10.5 11.5 7-7M15 7l2 2M17.5 4.5l2 2" />
+  </Svg>
+);
+
+export const IconUserPlus = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="9" cy="8" r="3.4" />
+    <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
+    <path d="M18 8v6M15 11h6" />
+  </Svg>
+);

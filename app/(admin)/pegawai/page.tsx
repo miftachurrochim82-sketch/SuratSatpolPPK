@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { wajibMasuk } from "@/lib/auth";
+import { boleh } from "@/lib/permissions";
+
 import { createStaff, deleteStaff } from "@/actions/master";
 import { listStaff } from "@/lib/queries";
 import { initialsOf } from "@/lib/format";
@@ -15,6 +18,9 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function PegawaiPage() {
+  const pengguna = await wajibMasuk();
+  const bolehTulis = boleh(pengguna.role, "masterTulis");
+
   const daftar = await listStaff();
   const aktif = daftar.filter((item) => item.status === "Aktif").length;
   const punyaWa = daftar.filter((item) => item.whatsapp).length;
@@ -29,7 +35,8 @@ export default async function PegawaiPage() {
               {daftar.length} pegawai · {aktif} aktif · {punyaWa} punya nomor WhatsApp
             </p>
           </div>
-          <FormModal
+          {bolehTulis ? (
+<FormModal
             action={createStaff}
             title="Tambah Pegawai"
             eyebrow="DATA MASTER"
@@ -107,6 +114,7 @@ export default async function PegawaiPage() {
               </div>
             </div>
           </FormModal>
+      ) : null}
         </div>
 
         {daftar.length === 0 ? (
@@ -159,7 +167,10 @@ export default async function PegawaiPage() {
                       </>
                     )}
 
-                    <form action={deleteStaff} style={{ marginLeft: "auto" }}>
+                    {bolehTulis ? (
+
+
+                      <form action={deleteStaff} style={{ marginLeft: "auto" }}>
                       <input type="hidden" name="id" value={item.id} />
                       <button
                         type="submit"
@@ -171,6 +182,9 @@ export default async function PegawaiPage() {
                         <IconTrash size={12} />
                       </button>
                     </form>
+
+
+                    ) : null}
                   </div>
                 </article>
               );

@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { wajibMasuk } from "@/lib/auth";
+import { boleh } from "@/lib/permissions";
+
 import {
   createDisposition,
   deleteDisposition,
@@ -69,6 +72,10 @@ export default async function DisposisiPage() {
   const selesai = disposisi.filter((item) => item.followUpStatus === "Selesai").length;
   const belumDisposisi = suratMasuk.filter((item) => item.dispositionStatus !== "Sudah");
 
+  const pengguna = await wajibMasuk();
+  const bolehTulis = boleh(pengguna.role, "disposisiTulis");
+  const bolehHapus = boleh(pengguna.role, "hapus");
+
   const hariIni = toDateInputValue();
 
   return (
@@ -82,7 +89,8 @@ export default async function DisposisiPage() {
             </p>
           </div>
 
-          <FormModal
+          {bolehTulis ? (
+<FormModal
             action={createDisposition}
             title="Buat Disposisi"
             eyebrow="DISPOSISI PIMPINAN"
@@ -184,6 +192,7 @@ export default async function DisposisiPage() {
               </p>
             ) : null}
           </FormModal>
+      ) : null}
         </div>
 
         {belumDisposisi.length > 0 ? (
@@ -332,7 +341,7 @@ export default async function DisposisiPage() {
                         </span>
                       )}
 
-                      {item.whatsappStatus === "Siap Dikirim" ? (
+                      {bolehTulis && item.whatsappStatus === "Siap Dikirim" ? (
                         <form action={markWhatsappSent}>
                           <input type="hidden" name="id" value={item.id} />
                           <button type="submit" className="mini-button" title="Tandai sudah dikirim">
@@ -366,25 +375,30 @@ export default async function DisposisiPage() {
                         headPosition={settings.head_position}
                       />
 
-                      {item.followUpStatus === "Selesai" ? (
-                        <form action={setDispositionStatus}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <input type="hidden" name="status" value="Pending" />
-                          <button type="submit" className="mini-button" title="Buka kembali disposisi">
-                            <IconClock size={11} /> Buka lagi
-                          </button>
-                        </form>
-                      ) : (
-                        <form action={setDispositionStatus}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <input type="hidden" name="status" value="Selesai" />
-                          <button type="submit" className="mini-button" title="Tandai selesai">
-                            <IconCheck size={11} /> Selesai
-                          </button>
-                        </form>
-                      )}
+                      {bolehTulis ? (
+                        item.followUpStatus === "Selesai" ? (
+                          <form action={setDispositionStatus}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="status" value="Pending" />
+                            <button type="submit" className="mini-button" title="Buka kembali disposisi">
+                              <IconClock size={11} /> Buka lagi
+                            </button>
+                          </form>
+                        ) : (
+                          <form action={setDispositionStatus}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="status" value="Selesai" />
+                            <button type="submit" className="mini-button" title="Tandai selesai">
+                              <IconCheck size={11} /> Selesai
+                            </button>
+                          </form>
+                        )
+                      ) : null}
 
-                      <form action={deleteDisposition}>
+                      {bolehHapus ? (
+
+
+                        <form action={deleteDisposition}>
                         <input type="hidden" name="id" value={item.id} />
                         <button
                           type="submit"
@@ -396,6 +410,9 @@ export default async function DisposisiPage() {
                           <IconTrash size={12} />
                         </button>
                       </form>
+
+
+                      ) : null}
                     </div>
                   </div>
                 </article>

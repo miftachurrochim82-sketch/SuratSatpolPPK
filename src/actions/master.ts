@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { appSettings, classifications, staff } from "@/db/schema";
 import { makeId } from "@/lib/ids";
 import type { ActionState } from "@/lib/action-state";
+import { cekIzinAksi } from "@/lib/auth";
 
 function teks(formData: FormData, kunci: string) {
   const nilai = formData.get(kunci);
@@ -18,6 +19,9 @@ export async function createClassification(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const izin = await cekIzinAksi("masterTulis");
+  if ("pesan" in izin) return { ok: false, message: izin.pesan };
+
   const code = teks(formData, "code").toUpperCase();
   const name = teks(formData, "name");
 
@@ -53,6 +57,9 @@ export async function createClassification(
 }
 
 export async function deleteClassification(formData: FormData) {
+  const izin = await cekIzinAksi("masterTulis");
+  if ("pesan" in izin) return;
+
   const code = teks(formData, "code");
   if (!code) return;
   try {
@@ -69,6 +76,9 @@ export async function deleteClassification(formData: FormData) {
  * useActionState, sehingga tidak butuh nilai kembalian.
  */
 export async function quickAddClassification(formData: FormData): Promise<void> {
+  const izin = await cekIzinAksi("masterTulis");
+  if ("pesan" in izin) return;
+
   const code = teks(formData, "code").toUpperCase();
   const name = teks(formData, "name");
   if (!code || !name) return;
@@ -91,6 +101,9 @@ export async function createStaff(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const izin = await cekIzinAksi("masterTulis");
+  if ("pesan" in izin) return { ok: false, message: izin.pesan };
+
   const name = teks(formData, "name");
   const position = teks(formData, "position");
 
@@ -118,6 +131,9 @@ export async function createStaff(
 }
 
 export async function deleteStaff(formData: FormData) {
+  const izin = await cekIzinAksi("masterTulis");
+  if ("pesan" in izin) return;
+
   const id = teks(formData, "id");
   if (!id) return;
   try {
@@ -145,6 +161,9 @@ export async function saveSettings(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
+  const izin = await cekIzinAksi("pengaturanTulis");
+  if ("pesan" in izin) return { ok: false, message: izin.pesan };
+
   const kunci = [
     "institution_name",
     "institution_area",

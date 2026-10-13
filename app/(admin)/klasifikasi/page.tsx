@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { wajibMasuk } from "@/lib/auth";
+import { boleh } from "@/lib/permissions";
+
 import {
   createClassification,
   deleteClassification,
@@ -20,6 +23,9 @@ const USULAN = [
 ];
 
 export default async function KlasifikasiPage() {
+  const pengguna = await wajibMasuk();
+  const bolehTulis = boleh(pengguna.role, "masterTulis");
+
   const daftar = await listClassifications();
   const sudahAda = new Set(daftar.map((item) => item.code));
   const sisaUsulan = USULAN.filter((item) => !sudahAda.has(item.code));
@@ -35,7 +41,8 @@ export default async function KlasifikasiPage() {
               dan keluar
             </p>
           </div>
-          <FormModal
+          {bolehTulis ? (
+<FormModal
             action={createClassification}
             title="Tambah Klasifikasi"
             eyebrow="DATA MASTER"
@@ -81,6 +88,7 @@ export default async function KlasifikasiPage() {
               </label>
             </div>
           </FormModal>
+      ) : null}
         </div>
 
         {daftar.length === 0 ? (
@@ -103,7 +111,9 @@ export default async function KlasifikasiPage() {
                   <h4>{item.name}</h4>
                   <p>{item.description || "Tanpa keterangan"}</p>
                 </div>
-                <form action={deleteClassification} style={{ marginLeft: "auto" }}>
+                {bolehTulis ? (
+
+                  <form action={deleteClassification} style={{ marginLeft: "auto" }}>
                   <input type="hidden" name="code" value={item.code} />
                   <button
                     type="submit"
@@ -115,6 +125,8 @@ export default async function KlasifikasiPage() {
                     <IconTrash size={13} />
                   </button>
                 </form>
+
+                ) : null}
               </div>
             ))}
           </div>
@@ -137,7 +149,9 @@ export default async function KlasifikasiPage() {
                   <h4>{item.name}</h4>
                   <p>{item.description}</p>
                 </div>
-                <form action={quickAddClassification} style={{ marginLeft: "auto" }}>
+                {bolehTulis ? (
+
+                  <form action={quickAddClassification} style={{ marginLeft: "auto" }}>
                   <input type="hidden" name="code" value={item.code} />
                   <input type="hidden" name="name" value={item.name} />
                   <input type="hidden" name="description" value={item.description} />
@@ -145,6 +159,8 @@ export default async function KlasifikasiPage() {
                     <IconPlus size={11} /> Tambahkan
                   </button>
                 </form>
+
+                ) : null}
               </div>
             ))}
           </div>

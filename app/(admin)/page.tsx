@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getDashboardData } from "@/lib/queries";
 import { getSettings, isDatabaseReady } from "@/lib/settings";
+import { wajibMasuk } from "@/lib/auth";
 import { formatDateShort } from "@/lib/format";
 import {
   IconAlert,
@@ -18,9 +19,15 @@ export const dynamic = "force-dynamic";
 
 const TINGGI_GRAFIK = 118;
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ izin?: string }>;
+}) {
+  const [pengguna, { izin }] = await Promise.all([wajibMasuk(), searchParams]);
+
   const [data, settings, dbSiap] = await Promise.all([
-    getDashboardData(),
+    getDashboardData(pengguna),
     getSettings(),
     isDatabaseReady(),
   ]);
@@ -64,6 +71,16 @@ export default async function DashboardPage() {
 
   return (
     <>
+      {izin === "ditolak" ? (
+        <p className="notification-note" role="alert" style={{ marginBottom: 18 }}>
+          <IconAlert size={15} />
+          <span>
+            <strong>Akses ditolak.</strong> Peran Anda tidak punya izin untuk membuka halaman
+            itu. Hubungi administrator bila merasa ini keliru.
+          </span>
+        </p>
+      ) : null}
+
       {!dbSiap ? (
         <p className="notification-note" style={{ marginBottom: 18 }} role="alert">
           <IconAlert size={15} />
