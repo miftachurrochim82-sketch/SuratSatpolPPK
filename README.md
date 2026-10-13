@@ -12,6 +12,23 @@ Aplikasi administrasi surat: pencatatan surat masuk, surat keluar, disposisi, ar
 | Styling | Tailwind CSS 4 |
 | QR code | `qrcode` |
 
+## Audit UI/UX & uji antarmuka
+
+Antarmuka aplikasi ini sudah melalui audit bertahap yang hasil pengukurannya terdokumentasi
+di [`AUDIT-UI-UX.md`](AUDIT-UI-UX.md) — mulai dari kontras warna, skala huruf, sasaran sentuh,
+perpindahan tabel menjadi kartu di ponsel, sampai aksesibilitas (hierarki judul, nama aksesibel,
+penanda fokus, fokus panel notifikasi).
+
+Dua skrip uji menjalankan pemeriksaan itu lewat peramban sungguhan:
+
+```bash
+node scripts/uji/uji-app.mjs     # 18 pemeriksaan fungsi & tata letak
+node scripts/uji/uji-akses.mjs   # 12 pemeriksaan aksesibilitas & semantik
+```
+
+(Cara menyiapkan basis data, menjalankan server, dan memasang peramban ada di
+[`scripts/uji/README.md`](scripts/uji/README.md).)
+
 ## Struktur Project
 
 ```
