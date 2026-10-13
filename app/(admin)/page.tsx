@@ -38,6 +38,8 @@ export default async function DashboardPage({
   );
   const skala = [puncak, Math.round(puncak * 0.66), Math.round(puncak * 0.33), 0];
 
+  // Kartu ringkasan membawa serta saringannya: sekali klik langsung membuka
+  // daftar yang sudah tersaring, bukan halaman penuh yang harus disaring lagi.
   const kartu = [
     {
       kelas: "navy",
@@ -45,6 +47,8 @@ export default async function DashboardPage({
       nilai: data.totalMasuk,
       catatan: `${data.suratMasukBulanIni} bulan ini`,
       ikon: <IconMailIn size={20} />,
+      tautan: "/surat-masuk",
+      petunjuk: "Buka daftar surat masuk",
     },
     {
       kelas: "sky",
@@ -52,6 +56,8 @@ export default async function DashboardPage({
       nilai: data.totalKeluar,
       catatan: "tercatat di arsip",
       ikon: <IconMailOut size={20} />,
+      tautan: "/surat-keluar",
+      petunjuk: "Buka daftar surat keluar",
     },
     {
       kelas: "amber",
@@ -59,6 +65,8 @@ export default async function DashboardPage({
       nilai: data.disposisiPending,
       catatan: `${data.disposisiSelesai} sudah selesai`,
       ikon: <IconClock size={20} />,
+      tautan: "/disposisi?status=Pending",
+      petunjuk: "Lihat disposisi yang masih menunggu",
     },
     {
       kelas: "green",
@@ -66,6 +74,8 @@ export default async function DashboardPage({
       nilai: data.belumDidisposisi,
       catatan: "surat masuk menunggu",
       ikon: <IconDisposition size={20} />,
+      tautan: "/surat-masuk?disposisi=Belum",
+      petunjuk: "Lihat surat masuk yang belum didisposisi",
     },
   ];
 
@@ -109,7 +119,13 @@ export default async function DashboardPage({
 
       <section className="stat-grid">
         {kartu.map((item) => (
-          <article className={`stat-card ${item.kelas}`} key={item.label}>
+          <Link
+            className={`stat-card ${item.kelas}`}
+            key={item.label}
+            href={item.tautan}
+            title={item.petunjuk}
+            aria-label={`${item.label}: ${item.nilai}. ${item.petunjuk}`}
+          >
             <div className="stat-icon" aria-hidden="true">
               {item.ikon}
             </div>
@@ -118,7 +134,7 @@ export default async function DashboardPage({
               <strong>{item.nilai}</strong>
               <span>{item.catatan}</span>
             </div>
-          </article>
+          </Link>
         ))}
       </section>
 

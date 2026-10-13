@@ -94,6 +94,19 @@ export async function listDispositions(pengguna?: PenggunaAktif | null) {
   );
 }
 
+/**
+ * Beberapa disposisi yang masih menunggu, untuk panel notifikasi di topbar.
+ * Dipakai bersama countPendingDispositions supaya angka pada lonceng dan
+ * isi panelnya selalu berasal dari daftar yang sama.
+ */
+export async function listPendingDispositions(
+  pengguna?: PenggunaAktif | null,
+  batas = 3,
+): Promise<DispositionRow[]> {
+  const semua = await listDispositions(pengguna);
+  return semua.filter((item) => item.followUpStatus === "Pending").slice(0, batas);
+}
+
 export async function listUsers() {
   return aman(
     () =>

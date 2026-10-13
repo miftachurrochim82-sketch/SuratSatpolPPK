@@ -9,9 +9,15 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = (url.searchParams.get("code") ?? "").trim().toUpperCase();
+  /*
+   * `text` dipakai lembar cetak: QR berisi ringkasan disposisi apa adanya,
+   * sehingga tetap bisa dipindai tanpa jaringan. Dibatasi panjangnya supaya
+   * tidak dipakai untuk menyelundupkan data besar lewat gambar.
+   */
+  const teksBebas = (url.searchParams.get("text") ?? "").trim().slice(0, 300);
 
-  if (!code) {
-    return new Response("Parameter code wajib diisi.", { status: 400 });
+  if (!code && !teksBebas) {
+    return new Response("Parameter code atau text wajib diisi.", { status: 400 });
   }
 
   const ukuran = Number(url.searchParams.get("size") ?? 420);
@@ -22,7 +28,9 @@ export async function GET(request: Request) {
       ? `${request.headers.get("x-forwarded-proto")}://${request.headers.get("x-forwarded-host")}`
       : url.origin;
 
-  const tautan = `${origin}/verifikasi?code=${encodeURIComponent(code)}`;
+  const tautan = teksBebas
+    ? teksBebas
+    : `${origin}/verifikasi?code=${encodeURIComponent(code)}`;
 
   try {
     const png = await QRCode.toBuffer(tautan, {

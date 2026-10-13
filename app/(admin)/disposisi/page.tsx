@@ -390,6 +390,14 @@ export default async function DisposisiPage() {
                           dispositionDate: String(item.dispositionDate),
                           dueDate: item.dueDate ? String(item.dueDate) : null,
                         }}
+                        qrText={[
+                          "LEMBAR DISPOSISI",
+                          `Agenda: ${item.letterNumber}`,
+                          `Perihal: ${item.subject}`,
+                          `Kepada: ${item.staffName}`,
+                          `Instruksi: ${item.instruction}`,
+                          `Batas waktu: ${item.dueDate ? formatDateShort(item.dueDate) : "-"}`,
+                        ].join(" | ")}
                         institutionName={settings.institution_name}
                         institutionArea={settings.institution_area}
                         institutionAddress={settings.institution_address}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useSyncExternalStore, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useSyncExternalStore, useState, type ReactNode } from "react";
 import {
   IconBell,
   IconChevronRight,
@@ -63,12 +63,22 @@ type NavItem = {
   badge?: number;
 };
 
+export type DisposisiMenunggu = {
+  id: string;
+  subject: string;
+  letterNumber: string;
+  staffName: string;
+  dueDate: string | null;
+};
+
 type AppShellProps = {
   children: ReactNode;
   institutionArea: string;
   letterCode: string;
   user: { name: string; username: string; role: string };
   pendingDispositions: number;
+  /** beberapa disposisi terbaru yang menunggu, untuk panel notifikasi */
+  dispositionsWaiting: DisposisiMenunggu[];
   today: string;
 };
 
@@ -89,11 +99,31 @@ export default function AppShell({
   letterCode,
   user,
   pendingDispositions,
+  dispositionsWaiting,
   today,
 }: AppShellProps) {
   const pathname = usePathname();
   const [laciTerbuka, setLaciTerbuka] = useState(false);
+  const [notifTerbuka, setNotifTerbuka] = useState(false);
   const [sempit, setSempit] = useLebarSidebar();
+
+  // panel notifikasi ditutup dengan Esc atau klik di luarnya
+  useEffect(() => {
+    if (!notifTerbuka) return;
+    const lewatPapanTik = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setNotifTerbuka(false);
+    };
+    const klikDiLuar = (event: MouseEvent) => {
+      const wadah = document.querySelector(".notif-wrap");
+      if (wadah && !wadah.contains(event.target as Node)) setNotifTerbuka(false);
+    };
+    document.addEventListener("keydown", lewatPapanTik);
+    document.addEventListener("mousedown", klikDiLuar);
+    return () => {
+      document.removeEventListener("keydown", lewatPapanTik);
+      document.removeEventListener("mousedown", klikDiLuar);
+    };
+  }, [notifTerbuka]);
 
   const boleh = menuBoleh(user.role);
   const singkatanPeran = definisiPeran(user.role).singkat;
@@ -264,10 +294,57 @@ export default function AppShell({
 
           <div className="topbar-actions">
             <span className="today">{today}</span>
-            <Link href="/disposisi" className="icon-button notification" aria-label="Disposisi pending">
-              <IconBell size={17} />
-              {pendingDispositions > 0 ? <i aria-hidden="true" /> : null}
-            </Link>
+            <div className="notif-wrap">
+              <button
+                type="button"
+                className="icon-button notification"
+                aria-label={`Disposisi menunggu: ${pendingDispositions}`}
+                aria-expanded={notifTerbuka}
+                aria-haspopup="dialog"
+                onClick={() => setNotifTerbuka((lama) => !lama)}
+              >
+                <IconBell size={17} />
+                {pendingDispositions > 0 ? <i aria-hidden="true" /> : null}
+              </button>
+
+              {notifTerbuka ? (
+                <div className="notif-panel" role="dialog" aria-label="Disposisi menunggu">
+                  <div className="notif-head">
+                    <strong>{pendingDispositions} disposisi menunggu</strong>
+                    <button
+                      type="button"
+                      className="modal-close"
+                      aria-label="Tutup pemberitahuan"
+                      onClick={() => setNotifTerbuka(false)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {dispositionsWaiting.length === 0 ? (
+                    <p className="notif-empty">Tidak ada disposisi yang menunggu tindak lanjut.</p>
+                  ) : (
+                    <ul className="notif-list">
+                      {dispositionsWaiting.map((item) => (
+                        <li key={item.id}>
+                          <strong>{item.subject}</strong>
+                          <span>
+                            {item.letterNumber} · kepada {item.staffName}
+                            {item.dueDate ? ` · batas ${item.dueDate}` : ""}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <Link
+                    href="/disposisi?status=Pending"
+                    className="text-button"
+                    onClick={() => setNotifTerbuka(false)}
+                  >
+                    Lihat semua disposisi pending
+                  </Link>
+                </div>
+              ) : null}
+            </div>
             <div className="header-user">
               <div className="avatar" aria-hidden="true">
                 {inisial}

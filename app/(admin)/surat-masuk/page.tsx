@@ -167,11 +167,26 @@ export default async function SuratMasukPage() {
           targetId="tabel-surat-masuk"
           satuan="berkas"
           sortable
-          filterLabel="Semua klasifikasi"
-          options={klasifikasi.map((item) => ({
-            value: item.code,
-            label: `${item.code} — ${item.name}`,
-          }))}
+          filters={[
+            {
+              param: "status",
+              attribute: "data-kode",
+              label: "Semua klasifikasi",
+              options: klasifikasi.map((item) => ({
+                value: item.code,
+                label: `${item.code} — ${item.name}`,
+              })),
+            },
+            {
+              param: "disposisi",
+              attribute: "data-disposisi",
+              label: "Semua status disposisi",
+              options: [
+                { value: "Belum", label: "Belum didisposisi" },
+                { value: "Sudah", label: "Sudah didisposisi" },
+              ],
+            },
+          ]}
         />
 
         <div className="data-table-wrap">
@@ -209,6 +224,7 @@ export default async function SuratMasukPage() {
                   <tr
                     key={item.id}
                     data-kode={item.classificationCode}
+                    data-disposisi={item.dispositionStatus}
                     data-urut-agenda={item.agendaNo}
                   >
                     <td data-label="Agenda">

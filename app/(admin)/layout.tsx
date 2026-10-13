@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import AppShell from "@/components/AppShell";
 import { getSettings } from "@/lib/settings";
-import { countPendingDispositions } from "@/lib/queries";
+import { countPendingDispositions, listPendingDispositions } from "@/lib/queries";
 import { formatToday } from "@/lib/format";
 import { wajibMasuk } from "@/lib/auth";
 
@@ -13,9 +13,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   // memeriksa izinnya sendiri, karena action bisa dipanggil langsung.
   const pengguna = await wajibMasuk();
 
-  const [settings, pending] = await Promise.all([
+  const [settings, pending, daftarMenunggu] = await Promise.all([
     getSettings(),
     countPendingDispositions(pengguna),
+    listPendingDispositions(pengguna),
   ]);
 
   return (
@@ -28,6 +29,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         role: pengguna.role,
       }}
       pendingDispositions={pending}
+      dispositionsWaiting={daftarMenunggu.map((item) => ({
+        id: item.id,
+        subject: item.subject,
+        letterNumber: item.letterNumber,
+        staffName: item.staffName,
+        dueDate: item.dueDate ? String(item.dueDate) : null,
+      }))}
       today={formatToday()}
     >
       {children}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore, type ChangeEvent } from "react";
 import { IconFilter, IconSearch } from "@/components/Icons";
+import { cuplikanUrl, cuplikanUrlServer, langgananUrl, param, tulis } from "@/lib/urlstate";
 
 type Opsi = { value: string; label: string };
 
@@ -47,8 +48,10 @@ export default function GridFilter({
   satuan = "data",
   kosong = { judul: "Tidak ada yang cocok", pesan: "Ubah kata pencarian atau pilih status lain." },
 }: GridFilterProps) {
-  const [kata, setKata] = useState("");
-  const [pilihan, setPilihan] = useState("");
+  // keadaan saringan disimpan di alamat halaman supaya bisa disalin/dibagikan
+  const kueri = useSyncExternalStore(langgananUrl, cuplikanUrl, cuplikanUrlServer);
+  const kata = param(kueri, "cari");
+  const pilihan = param(kueri, "status");
   const kotakJumlah = useRef<HTMLSpanElement>(null);
 
   const terapkan = useCallback(
@@ -97,24 +100,21 @@ export default function GridFilter({
     [kartuSelector, kosong.judul, kosong.pesan, satuan, statusAttribute, targetId],
   );
 
+  // setiap perubahan alamat halaman menggambar ulang kartu yang tampil
   useEffect(() => {
-    terapkan("", "");
-  }, [terapkan]);
+    terapkan(kata, pilihan);
+  }, [terapkan, kata, pilihan]);
 
   function ubahTeks(event: ChangeEvent<HTMLInputElement>) {
-    setKata(event.target.value);
-    terapkan(event.target.value, pilihan);
+    tulis({ cari: event.target.value });
   }
 
   function ubahPilihan(event: ChangeEvent<HTMLSelectElement>) {
-    setPilihan(event.target.value);
-    terapkan(kata, event.target.value);
+    tulis({ status: event.target.value });
   }
 
   function bersihkan() {
-    setKata("");
-    setPilihan("");
-    terapkan("", "");
+    tulis({ cari: "", status: "" });
     document.getElementById(`cari-${targetId}`)?.focus();
   }
 

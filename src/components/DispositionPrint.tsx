@@ -22,6 +22,8 @@ export type PrintDisposition = {
 
 type Props = {
   data: PrintDisposition;
+  /** ringkasan singkat untuk QR di lembar cetak (opsional) */
+  qrText?: string;
   institutionName: string;
   institutionArea: string;
   institutionAddress: string;
@@ -48,6 +50,7 @@ function formatTanggal(nilai: string | null) {
  */
 export default function DispositionPrint({
   data,
+  qrText,
   institutionName,
   institutionArea,
   institutionAddress,
@@ -55,15 +58,33 @@ export default function DispositionPrint({
   headPosition,
 }: Props) {
   const [mencetak, setMencetak] = useState(false);
+  const [pakaiQr, setPakaiQr] = useState(false);
+
+  /*
+   * Nama berkas PDF ditentukan judul halaman saat mencetak, jadi judulnya
+   * diganti sebentar dengan nomor disposisi lalu dikembalikan lagi.
+   */
+  const namaBerkas = `Disposisi-${data.letterNumber.replace(/[^A-Za-z0-9]+/g, "-")}`;
 
   useEffect(() => {
     if (!mencetak) return;
+    const judulSemula = document.title;
+    document.title = namaBerkas;
+    const kembalikan = () => {
+      document.title = judulSemula;
+    };
+    window.addEventListener("afterprint", kembalikan, { once: true });
+
     const timer = setTimeout(() => {
       window.print();
       setMencetak(false);
     }, 150);
-    return () => clearTimeout(timer);
-  }, [mencetak]);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("afterprint", kembalikan);
+      document.title = judulSemula;
+    };
+  }, [mencetak, namaBerkas]);
 
   return (
     <>
@@ -71,10 +92,22 @@ export default function DispositionPrint({
         type="button"
         className="mini-button"
         onClick={() => setMencetak(true)}
-        title="Cetak lembar disposisi"
+        title={`Cetak lembar disposisi (berkas ${namaBerkas}.pdf)`}
       >
         <IconPrint size={11} /> Cetak
       </button>
+
+      {qrText ? (
+        <label className="mini-toggle" title="Sertakan QR ringkasan pada lembar yang dicetak">
+          <input
+            type="checkbox"
+            checked={pakaiQr}
+            onChange={(event) => setPakaiQr(event.target.checked)}
+            aria-label="Sertakan QR ringkasan pada lembar cetak"
+          />
+          QR
+        </label>
+      ) : null}
 
       {mencetak ? (
         <PrintPortal>
@@ -145,6 +178,18 @@ export default function DispositionPrint({
                 <span>Penerima disposisi</span>
                 <strong>{data.staffName}</strong>
               </div>
+
+              {pakaiQr && qrText ? (
+                <div className="print-qr">
+                  {/* QR memuat ringkasan apa adanya: bisa dipindai tanpa jaringan */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/api/qr?text=${encodeURIComponent(qrText)}&size=200`}
+                    alt="QR ringkasan disposisi"
+                  />
+                  <span>Pindai untuk ringkasan disposisi</span>
+                </div>
+              ) : null}
               <div>
                 <span>{institutionArea}</span>
                 <strong>
