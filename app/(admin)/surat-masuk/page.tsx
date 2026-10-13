@@ -163,8 +163,10 @@ export default async function SuratMasukPage() {
         </div>
 
         <TableFilter
-          placeholder="Cari nomor surat, pengirim, atau perihal…"
+          placeholder="Cari nomor surat, pengirim, perihal, atau kode…"
           targetId="tabel-surat-masuk"
+          satuan="berkas"
+          sortable
           filterLabel="Semua klasifikasi"
           options={klasifikasi.map((item) => ({
             value: item.code,
@@ -176,12 +178,12 @@ export default async function SuratMasukPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Agenda</th>
+                <th data-urut="agenda" aria-sort="none">Agenda</th>
                 <th>Nomor Surat</th>
                 <th>Pengirim</th>
                 <th>Perihal</th>
                 <th>Klasifikasi</th>
-                <th>Diterima</th>
+                <th data-urut="tanggal" aria-sort="none">Diterima</th>
                 <th>Disposisi</th>
                 <th style={{ textAlign: "right" }}>Aksi</th>
               </tr>
@@ -204,7 +206,11 @@ export default async function SuratMasukPage() {
                 </tr>
               ) : (
                 surat.map((item) => (
-                  <tr key={item.id} data-kode={item.classificationCode}>
+                  <tr
+                    key={item.id}
+                    data-kode={item.classificationCode}
+                    data-urut-agenda={item.agendaNo}
+                  >
                     <td data-label="Agenda">
                       <span className="agenda-no">{String(item.agendaNo).padStart(3, "0")}</span>
                     </td>
@@ -224,7 +230,7 @@ export default async function SuratMasukPage() {
                     </td>
                     <td data-label="Diterima">
                       {formatDateShort(item.receivedDate)}
-                      <small>Surat {formatDate(item.letterDate)}</small>
+                      <small>Surat {formatDateShort(item.letterDate)}</small>
                     </td>
                     <td data-label="Disposisi">
                       <span className={`status-pill ${WARNA_STATUS[item.dispositionStatus] ?? "slate"}`}>

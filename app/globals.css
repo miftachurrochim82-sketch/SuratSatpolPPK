@@ -394,3 +394,22 @@ textarea:focus-visible, summary:focus-visible, [role="button"]:focus-visible,
   .data-table tbody tr:hover td:last-child { background: #fcfdff; }
   .subject-cell { max-width: 280px; }
 }
+
+/* Verifikasi: keadaan netral (belum ada kode) dan gangguan sistem
+   dibedakan dari "dokumen tidak ditemukan" supaya pesannya tidak saling bertentangan */
+.verify-status.is-neutral { color: #4f6076; background: #f1f5f9; }
+.verify-status.is-neutral span { background: #7d8fa6; }
+.verify-status.is-warning { color: #8a5a10; background: #fff6e6; }
+.verify-status.is-warning span { background: #d99a2b; }
+.verify-hint {
+  display: flex; align-items: flex-start; gap: 8px; margin: -6px 0 18px;
+  padding: 10px 12px; border-radius: 6px; color: #5f6e7f; background: #f6f9fc;
+  font-size: 13px; line-height: 19px; text-align: left;
+}
+.verify-hint svg { flex: 0 0 auto; margin-top: 2px; color: #8a6a2a; }
+.verify-copy strong { color: #37485f; letter-spacing: .5px; }
+
+/* Kotak kode verifikasi tidak boleh mendorong tombol "Periksa" menumpuk */
+.search-field { min-width: 0; }
+.search-field input { min-width: 0; }
+.verify-card form .button { flex: 0 0 auto; }

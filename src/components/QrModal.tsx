@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { fokuskanPertama, kunciGulir, tahanFokus } from "@/lib/fokus";
 import { IconCheck, IconClose, IconQr } from "@/components/Icons";
 
 type QrModalProps = {
@@ -12,6 +13,8 @@ type QrModalProps = {
 
 export default function QrModal({ code, nomor, perihal, tanda }: QrModalProps) {
   const [terbuka, setTerbuka] = useState(false);
+  const wadah = useRef<HTMLDivElement>(null);
+  const pemicu = useRef<HTMLButtonElement>(null);
   const [tautan, setTautan] = useState("");
   const [tersalin, setTersalin] = useState(false);
 
@@ -22,12 +25,24 @@ export default function QrModal({ code, nomor, perihal, tanda }: QrModalProps) {
   }
 
   useEffect(() => {
-    function tekanEscape(event: KeyboardEvent) {
+    if (!terbuka) return;
+
+    function tekanTombol(event: KeyboardEvent) {
       if (event.key === "Escape") setTerbuka(false);
+      else tahanFokus(event, wadah.current);
     }
-    document.addEventListener("keydown", tekanEscape);
-    return () => document.removeEventListener("keydown", tekanEscape);
-  }, []);
+
+    const tombolPemicu = pemicu.current;
+    document.addEventListener("keydown", tekanTombol);
+    const bukaKunci = kunciGulir();
+    fokuskanPertama(wadah.current);
+
+    return () => {
+      document.removeEventListener("keydown", tekanTombol);
+      bukaKunci();
+      tombolPemicu?.focus();
+    };
+  }, [terbuka]);
 
   async function salin() {
     try {
@@ -42,6 +57,7 @@ export default function QrModal({ code, nomor, perihal, tanda }: QrModalProps) {
   return (
     <>
       <button
+        ref={pemicu}
         type="button"
         className="mini-button"
         onClick={buka}
@@ -58,7 +74,7 @@ export default function QrModal({ code, nomor, perihal, tanda }: QrModalProps) {
             onClick={() => setTerbuka(false)}
             aria-label="Tutup"
           />
-          <div className="modal modal-qr">
+          <div className="modal modal-qr" ref={wadah}>
             <div className="modal-head">
               <div>
                 <p className="eyebrow">VERIFIKASI DOKUMEN</p>

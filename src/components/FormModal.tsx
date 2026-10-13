@@ -7,6 +7,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { fokuskanPertama, kunciGulir, tahanFokus } from "@/lib/fokus";
 import { IconAlert, IconCheck, IconClose } from "@/components/Icons";
 import {
   EMPTY_STATE,
@@ -38,6 +39,8 @@ export default function FormModal({
   wide = false,
 }: FormModalProps) {
   const [terbuka, setTerbuka] = useState(false);
+  const wadah = useRef<HTMLDivElement>(null);
+  const pemicu = useRef<HTMLButtonElement>(null);
   const [pending, setPending] = useState(false);
   const [galat, setGalat] = useState("");
   const [toast, setToast] = useState<ActionState | null>(null);
@@ -81,16 +84,29 @@ export default function FormModal({
   }, [toast]);
 
   useEffect(() => {
-    function tekanEscape(event: KeyboardEvent) {
+    if (!terbuka) return;
+
+    function tekanTombol(event: KeyboardEvent) {
       if (event.key === "Escape") setTerbuka(false);
+      else tahanFokus(event, wadah.current);
     }
-    document.addEventListener("keydown", tekanEscape);
-    return () => document.removeEventListener("keydown", tekanEscape);
-  }, []);
+
+    const tombolPemicu = pemicu.current;
+    document.addEventListener("keydown", tekanTombol);
+    const bukaKunci = kunciGulir();
+    fokuskanPertama(wadah.current);
+
+    return () => {
+      document.removeEventListener("keydown", tekanTombol);
+      bukaKunci();
+      tombolPemicu?.focus();
+    };
+  }, [terbuka]);
 
   return (
     <>
       <button
+        ref={pemicu}
         type="button"
         className={triggerClass}
         onClick={buka}
@@ -103,7 +119,7 @@ export default function FormModal({
       {terbuka ? (
         <div className="modal-layer" role="dialog" aria-modal="true" aria-label={title}>
           <button type="button" className="modal-scrim" onClick={() => setTerbuka(false)} aria-label="Tutup" />
-          <div className={`modal${wide ? " modal-qr" : ""}`}>
+          <div className={`modal${wide ? " modal-qr" : ""}`} ref={wadah}>
             <div className="modal-head">
               <div>
                 {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}

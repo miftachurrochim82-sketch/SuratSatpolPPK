@@ -181,8 +181,10 @@ export default async function SuratKeluarPage() {
         </div>
 
         <TableFilter
-          placeholder="Cari nomor surat, tujuan, atau perihal…"
+          placeholder="Cari nomor surat, tujuan, perihal, atau kode…"
           targetId="tabel-surat-keluar"
+          satuan="berkas"
+          sortable
           filterLabel="Semua klasifikasi"
           options={klasifikasi.map((item) => ({
             value: item.code,
@@ -194,12 +196,12 @@ export default async function SuratKeluarPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Agenda</th>
+                <th data-urut="agenda" aria-sort="none">Agenda</th>
                 <th>Nomor Surat</th>
                 <th>Tujuan</th>
                 <th>Perihal</th>
                 <th>Penandatangan</th>
-                <th>Tanggal</th>
+                <th data-urut="tanggal" aria-sort="none">Tanggal</th>
                 <th>Arsip</th>
                 <th style={{ textAlign: "right" }}>Aksi</th>
               </tr>
@@ -222,7 +224,11 @@ export default async function SuratKeluarPage() {
                 </tr>
               ) : (
                 surat.map((item) => (
-                  <tr key={item.id} data-kode={item.classificationCode}>
+                  <tr
+                    key={item.id}
+                    data-kode={item.classificationCode}
+                    data-urut-agenda={item.agendaNo}
+                  >
                     <td data-label="Agenda">
                       <span className="agenda-no">{String(item.agendaNo).padStart(3, "0")}</span>
                     </td>

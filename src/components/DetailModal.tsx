@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { IconClose, IconEye } from "@/components/Icons";
+import { fokuskanPertama, kunciGulir, tahanFokus } from "@/lib/fokus";
 
 type DetailModalProps = {
   title: string;
@@ -17,18 +18,33 @@ export default function DetailModal({
   children,
 }: DetailModalProps) {
   const [terbuka, setTerbuka] = useState(false);
+  const wadah = useRef<HTMLDivElement>(null);
+  const pemicu = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    function tekanEscape(event: KeyboardEvent) {
+    if (!terbuka) return;
+
+    function tekanTombol(event: KeyboardEvent) {
       if (event.key === "Escape") setTerbuka(false);
+      else tahanFokus(event, wadah.current);
     }
-    document.addEventListener("keydown", tekanEscape);
-    return () => document.removeEventListener("keydown", tekanEscape);
-  }, []);
+
+    const tombolPemicu = pemicu.current;
+    document.addEventListener("keydown", tekanTombol);
+    const bukaKunci = kunciGulir();
+    fokuskanPertama(wadah.current);
+
+    return () => {
+      document.removeEventListener("keydown", tekanTombol);
+      bukaKunci();
+      tombolPemicu?.focus();
+    };
+  }, [terbuka]);
 
   return (
     <>
       <button
+        ref={pemicu}
         type="button"
         className="mini-button"
         onClick={() => setTerbuka(true)}
@@ -45,7 +61,7 @@ export default function DetailModal({
             onClick={() => setTerbuka(false)}
             aria-label="Tutup"
           />
-          <div className="modal">
+          <div className="modal" ref={wadah}>
             <div className="modal-head">
               <div>
                 <p className="eyebrow">{eyebrow}</p>
